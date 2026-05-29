@@ -9,7 +9,14 @@
       "Bash(gh auth *)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(git rm *)",
+      "Bash(vercel --yes --name fineclause)",
+      "Bash(vercel --prod)",
+      "Bash(git -C /Users/leonidfedorets/Downloads/FineClause status)",
+      "Bash(git -C /Users/leonidfedorets/Downloads/FineClause diff)",
+      "Bash(git -C /Users/leonidfedorets/Downloads/FineClause add .claude/settings.local.json .gitignore)",
+      "Bash(git -C /Users/leonidfedorets/Downloads/FineClause commit -m ' *)"
     ]
   }
 }
