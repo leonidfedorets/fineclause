@@ -1,0 +1,34 @@
+project_id = "aswuzrajftzeckawbthc"
+
+[functions.analyze-contract]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.admin-users]
+verify_jwt = false
+
+[functions.increment-scans]
+verify_jwt = false
+
+[functions.generate-invoice]
+verify_jwt = false
+
+[functions.send-invoice-email]
+verify_jwt = false
+
+[functions.process-recurring-invoices]
+verify_jwt = false
+
+[functions.analyze-carbon]
+verify_jwt = false
+
+[functions.parse-receipt]
+verify_jwt = false
+
+[functions.analyze-tax]
+verify_jwt = false

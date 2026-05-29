@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can post job listings" ON public.job_listings FOR INSERT TO anon, authenticated WITH CHECK (true);

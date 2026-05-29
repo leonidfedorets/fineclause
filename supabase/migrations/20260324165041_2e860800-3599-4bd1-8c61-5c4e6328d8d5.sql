@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN subscription_product_id text DEFAULT null;
