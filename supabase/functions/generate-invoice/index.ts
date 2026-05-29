@@ -62,8 +62,8 @@ serve(async (req) => {
     const now = new Date();
     const invoiceNumber = customNumber || `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
 
     const typeLabel = {
       standard: "Invoice", proforma: "Proforma Invoice", credit_note: "Credit Note",
@@ -106,11 +106,11 @@ ${notes ? `Notes: ${notes}` : ""}
 
 Style with clean, professional inline CSS. White background, proper table with columns for description/quantity/unit/unit price/amount, clear headers, European business document styling. Include the document type prominently in the header.`;
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "You are an invoice formatting assistant. Generate clean, professional HTML invoices for European businesses. Support all invoice types (standard, proforma, credit note, corrective, VAT, etc). Return only HTML." },
           { role: "user", content: aiPrompt },

@@ -25,8 +25,8 @@ serve(async (req) => {
 
     const { company_name, country, tax_regime, gross_income, deductible_expenses, currency, quarter_label, vat_applicable, vat_rate } = await req.json();
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
 
     const taxableIncome = gross_income - deductible_expenses;
 
@@ -55,14 +55,14 @@ Please provide:
 
 Keep the response concise, practical, and well-structured. Use bullet points and bold headings. Respond in English unless the country suggests another primary language.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "You are a tax advisory expert specializing in business taxation across multiple jurisdictions. Provide practical, data-driven tax estimates and optimization strategies." },
           { role: "user", content: prompt },

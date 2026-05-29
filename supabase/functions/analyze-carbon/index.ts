@@ -25,8 +25,8 @@ serve(async (req) => {
 
     const { company_name, industry, energy_kwh, travel_km, waste_kg, employees, total_emissions_kg, offsets_kg } = await req.json();
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
 
     const prompt = `You are a carbon footprint sustainability expert. Analyze the following business carbon footprint data and provide actionable advice.
 
@@ -47,14 +47,14 @@ Please provide:
 
 Keep the response concise, practical, and encouraging. Use bullet points. Respond in the same language the user's browser is likely set to (default English).`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "You are a sustainability and carbon footprint expert. Give practical, data-driven advice for businesses to reduce their environmental impact." },
           { role: "user", content: prompt },
