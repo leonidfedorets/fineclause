@@ -1,10 +1,25 @@
 User-agent: *
 Allow: /
+Allow: /scan
+Allow: /careers
+Allow: /templates
+Allow: /signup
+Allow: /login
+Allow: /employers
+Allow: /contact
+Allow: /security
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
+Allow: /install
 Disallow: /admin
 Disallow: /dashboard
-Disallow: /scan
-Disallow: /compare
+Disallow: /recruiter
 Disallow: /reset-password
+Disallow: /invoices
+Disallow: /expenses
+Disallow: /carbon
+Disallow: /tax
 
 User-agent: Googlebot
 Allow: /
@@ -19,9 +34,6 @@ User-agent: facebookexternalhit
 Allow: /
 
 User-agent: LinkedInBot
-Allow: /
-
-User-agent: Slackbot
 Allow: /
 
 Sitemap: https://fineclause.com/sitemap.xml

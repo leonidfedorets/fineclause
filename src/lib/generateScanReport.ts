@@ -228,7 +228,7 @@ export function generateScanReport(results: AnalysisResult): void {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.text("This report is AI-generated and does not constitute legal advice. Consult a qualified attorney for professional guidance.", margin, footerY);
-  doc.text("FineClause — clear-deal-scanner.lovable.app", pageWidth - margin, footerY, { align: "right" });
+  doc.text("FineClause — fineclause.com", pageWidth - margin, footerY, { align: "right" });
 
   // Save
   const fileName = `FineClause-Report-${new Date().toISOString().slice(0, 10)}.pdf`;
