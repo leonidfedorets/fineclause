@@ -15,8 +15,8 @@ export default {
     extend: {
       fontFamily: {
         display: ["Playfair Display", "Georgia", "serif"],
-        body: ["DM Sans", "system-ui", "sans-serif"],
-        mono: ["DM Mono", "Courier New", "monospace"],
+        body: ["Inter", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Courier New", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
