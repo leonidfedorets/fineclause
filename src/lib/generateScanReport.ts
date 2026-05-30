@@ -38,8 +38,37 @@ const riskLabelMap = {
   danger: "HIGH RISK",
 };
 
+/**
+ * Strip characters that jsPDF's built-in Helvetica font cannot render.
+ * Helvetica supports the Latin-1 supplement (U+0000–U+00FF) only.
+ * Anything outside that range (Cyrillic, Arabic, CJK, emoji, etc.)
+ * will appear as garbage boxes — replace them with a readable fallback.
+ */
+function sanitizeForPdf(text: string): string {
+  if (!text) return "";
+  return (
+    text
+      // Replace common typographic chars with ASCII equivalents
+      .replace(/[‘’]/g, "'")
+      .replace(/[“”]/g, '"')
+      .replace(/[–—]/g, "-")
+      .replace(/…/g, "...")
+      .replace(/©/g, "(c)")
+      .replace(/®/g, "(R)")
+      .replace(/™/g, "(TM)")
+      .replace(/€/g, "EUR")
+      .replace(/£/g, "GBP")
+      // Emoji & symbols → [icon]
+      .replace(/[\u{1F000}-\u{1FFFF}]/gu, "[icon]")
+      .replace(/[☀-⟿]/g, "")
+      // Strip everything outside Latin-1 (U+0100 and above that wasn't caught)
+      .replace(/[^\x00-\xFF]/g, "?")
+      .trim()
+  );
+}
+
 function wrapText(doc: jsPDF, text: string, maxWidth: number): string[] {
-  return doc.splitTextToSize(text, maxWidth) as string[];
+  return doc.splitTextToSize(sanitizeForPdf(text), maxWidth) as string[];
 }
 
 function checkPageBreak(doc: jsPDF, y: number, needed: number, margin: number): number {
@@ -81,7 +110,7 @@ export function generateScanReport(results: AnalysisResult): void {
   doc.setFontSize(8);
   doc.setTextColor(180, 178, 174);
   doc.text(`Generated ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, margin, 34);
-  doc.text(results.documentType, margin, 40);
+  doc.text(sanitizeForPdf(results.documentType), margin, 40);
 
   y = 58;
 
@@ -131,7 +160,7 @@ export function generateScanReport(results: AnalysisResult): void {
   doc.setTextColor(...COLORS.muted);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  const summaryLines = wrapText(doc, results.summary, contentWidth);
+  const summaryLines = wrapText(doc, results.summary, contentWidth); // wrapText calls sanitizeForPdf internally
   doc.text(summaryLines, margin, y);
   y += summaryLines.length * 4.5 + 8;
 
@@ -150,12 +179,13 @@ export function generateScanReport(results: AnalysisResult): void {
 
   // ── Clauses ──
   clauses.forEach((clause) => {
-    // Estimate height
+    // Estimate height — sanitize all clause text before rendering
     const explanationLines = wrapText(doc, clause.explanation, contentWidth - 14);
     const textLines = wrapText(doc, `"${clause.text}"`, contentWidth - 14);
     const altLines = clause.suggestedAlternative
       ? wrapText(doc, `"${clause.suggestedAlternative}"`, contentWidth - 18)
       : [];
+    const safeTitle = sanitizeForPdf(clause.title);
     const estimatedHeight = 18 + textLines.length * 3.8 + explanationLines.length * 3.8 + (altLines.length > 0 ? altLines.length * 3.8 + 14 : 0);
 
     y = checkPageBreak(doc, y, estimatedHeight, margin);
@@ -169,11 +199,11 @@ export function generateScanReport(results: AnalysisResult): void {
     doc.setTextColor(...COLORS.ink);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text(clause.title, margin + 6, y + 5);
+    doc.text(safeTitle, margin + 6, y + 5);
 
     // Badge
     const badge = riskLabelMap[clause.risk];
-    const badgeX = margin + 6 + doc.getTextWidth(clause.title) + 4;
+    const badgeX = margin + 6 + doc.getTextWidth(safeTitle) + 4;
     doc.setFontSize(7);
     doc.setFont("helvetica", "bold");
     const badgeWidth = doc.getTextWidth(badge) + 6;
@@ -207,7 +237,7 @@ export function generateScanReport(results: AnalysisResult): void {
       doc.setTextColor(...COLORS.accent);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.5);
-      doc.text("💡 SUGGESTED ALTERNATIVE", margin + 10, clauseY + 2);
+      doc.text(">> SUGGESTED ALTERNATIVE", margin + 10, clauseY + 2);
 
       doc.setTextColor(...COLORS.ink);
       doc.setFont("helvetica", "italic");
