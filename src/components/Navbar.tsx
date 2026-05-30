@@ -130,7 +130,7 @@ const Navbar = () => {
         <DropdownLink to="/carbon" onClick={close}>{t("nav.carbon")}</DropdownLink>
         <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
       </NavDropdown>
-      <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+      <a href="/#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
         {t("nav.pricing")}
       </a>
       <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">

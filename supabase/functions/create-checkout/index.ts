@@ -75,7 +75,13 @@ serve(async (req) => {
       // No body or invalid JSON — use default
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      return new Response(JSON.stringify({ error: "Payment system not configured. Please contact support." }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {

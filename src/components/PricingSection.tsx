@@ -25,7 +25,14 @@ const PricingSection = () => {
       const { data, error } = await supabase.functions.invoke("create-checkout", { body: { priceId } });
       if (error) throw error;
       if (data?.url) window.open(data.url, "_blank");
-    } catch { toast.error("Failed to start checkout"); } finally { setLoading(null); }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("STRIPE") || msg.includes("configuration")) {
+        toast.error("Payment system is being configured. Please contact support.");
+      } else {
+        toast.error("Failed to start checkout. Please try again.");
+      }
+    } finally { setLoading(null); }
   };
 
   const tierMeta: Record<string, { label: string; cta: string; featured?: boolean }> = {

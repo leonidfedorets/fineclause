@@ -64,7 +64,12 @@ const SubscriptionDialog = ({ open, onOpenChange, currentTierKey }: Subscription
       }
     } catch (err) {
       console.error("Checkout error:", err);
-      toast.error("Failed to start checkout. Please try again.");
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("STRIPE_SECRET_KEY") || msg.includes("not set") || msg.includes("configuration")) {
+        toast.error("Payment system not configured. Please contact support.");
+      } else {
+        toast.error("Failed to start checkout. Please try again.");
+      }
     } finally {
       setLoading(null);
     }

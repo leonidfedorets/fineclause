@@ -45,13 +45,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const subscribed = data.subscribed ?? false;
         setIsPro(subscribed);
         setSubscriptionEnd(data.subscription_end ?? null);
-        
-        // Determine tier from product_id
         if (data.product_id) {
           const tier = getTierByProductId(data.product_id);
           setCurrentTierKey(tier.key);
         } else if (subscribed) {
-          // Subscribed but no product_id (manually granted)
           setCurrentTierKey("pro");
         } else {
           setCurrentTierKey("free");
@@ -62,11 +59,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const checkRole = useCallback(async () => {
+  // FIX: must filter by the current user's ID, not just any admin row
+  const checkRole = useCallback(async (userId: string) => {
     try {
       const { data } = await supabase
         .from("user_roles")
         .select("role")
+        .eq("user_id", userId)
         .eq("role", "admin")
         .maybeSingle();
       setIsAdmin(!!data);
@@ -84,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         setTimeout(() => {
           checkSubscription();
-          checkRole();
+          checkRole(session.user.id);
         }, 0);
       } else {
         setIsAdmin(false);
@@ -98,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
       if (session?.user) {
         checkSubscription();
-        checkRole();
+        checkRole(session.user.id);
       }
     });
 
