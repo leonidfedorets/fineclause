@@ -155,7 +155,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-[0_2px_8px_hsl(221_83%_53%/0.3)]">
-            <Scale className="w-4 h-4 text-white" />
+            <span className="text-white font-display font-bold text-base leading-none">F</span>
           </div>
           <span className="font-display font-semibold text-lg tracking-tight text-foreground group-hover:text-accent transition-colors">
             FineClause

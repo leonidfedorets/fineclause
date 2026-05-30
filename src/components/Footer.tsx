@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, MessageCircle, Scale, ArrowUpRight } from "lucide-react";
+import { Mail, MessageCircle, ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const Footer = () => {
@@ -45,7 +45,7 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2.5 mb-4 group w-fit">
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-[0_2px_8px_hsl(221_83%_53%/0.3)]">
-                <Scale className="w-4 h-4 text-white" />
+                <span className="text-white font-display font-bold text-base leading-none">F</span>
               </div>
               <span className="font-display font-semibold text-base tracking-tight text-foreground group-hover:text-accent transition-colors">
                 FineClause
