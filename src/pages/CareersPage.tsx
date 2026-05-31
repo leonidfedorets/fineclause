@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import JobMatchesSection, { type JobMatch } from "@/components/JobMatchesSection";
+import JobMatchesSection, { type JobMatch, type AllJob } from "@/components/JobMatchesSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -55,6 +55,7 @@ const CareersPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<CVAnalysis | null>(null);
   const [jobMatches, setJobMatches] = useState<JobMatch[]>([]);
+  const [allJobs, setAllJobs] = useState<AllJob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -118,6 +119,7 @@ const CareersPage = () => {
     setIsAnalyzing(true);
     setAnalysis(null);
     setJobMatches([]);
+    setAllJobs([]);
 
     try {
       const formData = new FormData();
@@ -148,6 +150,9 @@ const CareersPage = () => {
         setAnalysis(data.analysis);
         if (data.job_matches && data.job_matches.length > 0) {
           setJobMatches(data.job_matches);
+        }
+        if (data.all_jobs && data.all_jobs.length > 0) {
+          setAllJobs(data.all_jobs);
         }
         toast({ title: t("careers.analysisComplete"), description: t("careers.analysisCompleteDesc") });
         setTimeout(() => {
@@ -403,10 +408,10 @@ const CareersPage = () => {
                 </Card>
 
                 {/* Job Matches */}
-                <JobMatchesSection matches={jobMatches} />
+                <JobMatchesSection matches={jobMatches} allJobs={allJobs} />
 
                 <div className="text-center mt-8">
-                  <Button variant="outline" onClick={() => { setAnalysis(null); setJobMatches([]); setSelectedFile(null); setEmail(""); setConsentAnalysis(false); setConsentRecruiter(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                  <Button variant="outline" onClick={() => { setAnalysis(null); setJobMatches([]); setAllJobs([]); setSelectedFile(null); setEmail(""); setConsentAnalysis(false); setConsentRecruiter(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
                     {t("careers.analyzeAnother")}
                   </Button>
                 </div>

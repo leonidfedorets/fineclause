@@ -93,20 +93,77 @@ serve(async (req) => {
     const analysis = JSON.parse(tc.function.arguments);
     console.log("[CV] OK score="+analysis.score+" level="+analysis.experience_level);
 
-    // Save CV record (fire-and-forget)
+    // Save CV record (await so we have the ID for matching)
+    let cvRecordId: string | null = null;
     if (candidate?.id) {
-      supabase.from("cv_uploads").insert({
+      const { data: cvRecord } = await supabase.from("cv_uploads").insert({
         candidate_id:candidate.id,file_name:file.name,file_path:candidate.id+"/"+Date.now()+"_"+file.name,
         ai_score:analysis.score,salary_min:analysis.salary_min,salary_max:analysis.salary_max,salary_currency:"EUR",
         skills:analysis.skills??[],experience_years:analysis.experience_years,education_level:analysis.education_level??null,
         summary:analysis.summary,raw_analysis:analysis,status:"completed"
-      }).then(()=>{}).catch(()=>{});
+      }).select("id").single();
+      cvRecordId = cvRecord?.id ?? null;
     }
+
+    // Job matching — call match-cv-jobs synchronously so we can return results
+    type JobMatch = {
+      job_id:string; job_title:string; company:string|null; location:string|null;
+      remote_option:string|null; salary_min:number|null; salary_max:number|null;
+      score:number; matched_skills:string[]; missing_skills:string[]; salary_fit:string;
+      description:string|null;
+    };
+    const jobMatches: JobMatch[] = [];
+
+    if (cvRecordId) {
+      try {
+        const matchResp = await fetch(`${SUPABASE_URL}/functions/v1/match-cv-jobs`, {
+          method:"POST",
+          headers:{"Content-Type":"application/json", Authorization:`Bearer ${SUPABASE_SERVICE_ROLE_KEY}`},
+          body:JSON.stringify({cv_id:cvRecordId}),
+        });
+        if (matchResp.ok) {
+          const matchData = await matchResp.json();
+          if (matchData.matches?.length > 0) {
+            const jobIds = matchData.matches.map((m:{job_id:string}) => m.job_id);
+            const { data: jobs } = await supabase
+              .from("job_listings")
+              .select("id,title,employer_name,location,remote_option,salary_min,salary_max,description")
+              .in("id", jobIds);
+            const jmap = new Map((jobs??[]).map((j:{id:string}) => [j.id, j]));
+            for (const m of matchData.matches) {
+              const j = jmap.get(m.job_id) as Record<string,unknown>|undefined;
+              jobMatches.push({
+                job_id: m.job_id,
+                job_title: String(j?.title??"Unknown"),
+                company: j?.employer_name as string ?? null,
+                location: j?.location as string ?? null,
+                remote_option: j?.remote_option as string ?? null,
+                salary_min: j?.salary_min as number ?? null,
+                salary_max: j?.salary_max as number ?? null,
+                score: m.score,
+                matched_skills: m.matched_skills,
+                missing_skills: m.missing_skills,
+                salary_fit: m.salary_fit,
+                description: j?.description as string ?? null,
+              });
+            }
+          }
+        }
+      } catch(e) { console.error("[CV] job matching (non-fatal):", e); }
+    }
+
+    // Also fetch ALL active jobs so the UI can show the full vacancy list
+    const { data: allJobs } = await supabase
+      .from("job_listings")
+      .select("id,title,employer_name,location,remote_option,salary_min,salary_max,description,required_skills,preferred_skills,experience_min")
+      .eq("is_active", true)
+      .order("created_at", {ascending: false});
 
     return new Response(JSON.stringify({
       success:true,
       analysis:{score:analysis.score,salary_min:analysis.salary_min,salary_max:analysis.salary_max,skills:analysis.skills,missing_skills:analysis.missing_skills,experience_years:analysis.experience_years,experience_level:analysis.experience_level,education_level:analysis.education_level??null,summary:analysis.summary,improvements:analysis.improvements,trajectory:analysis.trajectory??null},
-      job_matches:[]
+      job_matches: jobMatches,
+      all_jobs: allJobs ?? [],
     }),{status:200,headers:{...corsHeaders,"Content-Type":"application/json"}});
 
   } catch(e) {
