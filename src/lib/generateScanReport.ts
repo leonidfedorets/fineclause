@@ -262,28 +262,17 @@ export async function generateScanReport(results: AnalysisResult): Promise<void>
 
   const fileName = `FineClause-Report-${new Date().toISOString().slice(0, 10)}.pdf`;
 
-  // On native Capacitor: save to device Documents then open share sheet
+  // On native Capacitor: use native share sheet via Web Share API
   try {
     const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
-    if (cap?.isNativePlatform?.()) {
-      const base64 = doc.output("datauristring").split(",")[1];
-      const { Filesystem, Directory } = await import("@capacitor/filesystem");
-      const { Share } = await import("@capacitor/share");
-      const result = await Filesystem.writeFile({
-        path: fileName,
-        data: base64,
-        directory: Directory.Documents,
-      });
-      await Share.share({
-        title: "FineClause Contract Report",
-        text: "Your AI contract analysis report from FineClause.",
-        url: result.uri,
-        dialogTitle: "Save or share your report",
-      });
+    if (cap?.isNativePlatform?.() && navigator.share) {
+      const blob = doc.output("blob");
+      const file = new File([blob], fileName, { type: "application/pdf" });
+      await navigator.share({ files: [file], title: "FineClause Contract Report" });
       return;
     }
   } catch {
-    // Capacitor not available — fall through to web download
+    // Share not available or cancelled — fall through to web download
   }
 
   // Web: standard browser download
