@@ -1,3 +1,4 @@
+import { getAuthRedirectUrl } from '@/lib/getRedirectUrl';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +34,7 @@ const SignupPage = () => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: getAuthRedirectUrl() },
     });
     setLoading(false);
     if (error) {
@@ -58,7 +59,7 @@ const SignupPage = () => {
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: getAuthRedirectUrl() },
       });
       if (error) throw error;
       setContactEmail(email.trim());

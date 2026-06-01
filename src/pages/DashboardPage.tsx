@@ -14,6 +14,7 @@ import ShareReportButton from "@/components/ShareReportButton";
 import { getTierByKey } from "@/lib/subscriptionTiers";
 import type { Json } from "@/integrations/supabase/types";
 import { useTranslation } from "react-i18next";
+import PasskeyManager from "@/components/PasskeyManager";
 
 interface RiskClause {
   title: string;
@@ -383,6 +384,14 @@ const DashboardPage = () => {
         onOpenChange={setSubscriptionDialogOpen}
         currentTierKey={currentTierKey}
       />
+
+      {/* Security / Passkeys section */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
+        <div className="max-w-xl" data-testid="dashboard-passkey-section">
+          <h2 className="text-lg font-display font-bold text-foreground mb-4">Security</h2>
+          <PasskeyManager />
+        </div>
+      </div>
     </div>
   );
 };

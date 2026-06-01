@@ -14,4 +14,23 @@ try {
   console.warn("[Analytics] Failed to initialise:", e);
 }
 
+// Capacitor native plugin initialisation (no-op on web)
+async function initNative() {
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    if (!Capacitor.isNativePlatform()) return;
+
+    const { SplashScreen } = await import("@capacitor/splash-screen");
+    const { StatusBar, Style } = await import("@capacitor/status-bar");
+
+    await StatusBar.setStyle({ style: Style.Dark });
+    await StatusBar.setBackgroundColor({ color: "#2563eb" });
+    await SplashScreen.hide({ fadeOutDuration: 300 });
+  } catch {
+    // Not running in Capacitor — ignore
+  }
+}
+
+initNative();
+
 createRoot(document.getElementById("root")!).render(<App />);

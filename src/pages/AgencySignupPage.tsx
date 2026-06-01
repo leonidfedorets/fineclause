@@ -1,3 +1,4 @@
+import { getAuthRedirectUrl } from '@/lib/getRedirectUrl';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -41,7 +42,7 @@ const AgencySignupPage = () => {
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: getAuthRedirectUrl() },
       });
       if (error) throw error;
       setContactEmail(email.trim());

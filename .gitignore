@@ -32,3 +32,14 @@ supabase/.temp/
 .claude/
 test-results/
 playwright-report/
+
+# Capacitor / mobile
+ios/App/Pods/
+ios/.xcode.env.local
+android/.gradle/
+android/app/build/
+android/local.properties
+*.ipa
+*.aab
+*.apk
+fineclause-keystore.jks

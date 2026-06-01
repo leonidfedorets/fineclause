@@ -79,7 +79,7 @@ function checkPageBreak(doc: jsPDF, y: number, needed: number, margin: number): 
   return y;
 }
 
-export function generateScanReport(results: AnalysisResult): void {
+export async function generateScanReport(results: AnalysisResult): Promise<void> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
@@ -260,7 +260,32 @@ export function generateScanReport(results: AnalysisResult): void {
   doc.text("This report is AI-generated and does not constitute legal advice. Consult a qualified attorney for professional guidance.", margin, footerY);
   doc.text("FineClause — fineclause.com", pageWidth - margin, footerY, { align: "right" });
 
-  // Save
   const fileName = `FineClause-Report-${new Date().toISOString().slice(0, 10)}.pdf`;
+
+  // On native Capacitor: save to device Documents then open share sheet
+  try {
+    const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    if (cap?.isNativePlatform?.()) {
+      const base64 = doc.output("datauristring").split(",")[1];
+      const { Filesystem, Directory } = await import("@capacitor/filesystem");
+      const { Share } = await import("@capacitor/share");
+      const result = await Filesystem.writeFile({
+        path: fileName,
+        data: base64,
+        directory: Directory.Documents,
+      });
+      await Share.share({
+        title: "FineClause Contract Report",
+        text: "Your AI contract analysis report from FineClause.",
+        url: result.uri,
+        dialogTitle: "Save or share your report",
+      });
+      return;
+    }
+  } catch {
+    // Capacitor not available — fall through to web download
+  }
+
+  // Web: standard browser download
   doc.save(fileName);
 }
