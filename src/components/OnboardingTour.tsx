@@ -154,14 +154,15 @@ const OnboardingTour = ({ forceShow }: OnboardingTourProps) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="absolute left-1/2 -translate-x-1/2 w-[90vw] max-w-md"
+            className="fixed left-1/2 w-[92vw] max-w-md px-2"
             style={{
               top: highlightRect
-                ? highlightRect.bottom + 24
+                ? Math.min(highlightRect.bottom + 16, window.innerHeight - 300)
                 : "50%",
               transform: highlightRect
                 ? "translateX(-50%)"
                 : "translate(-50%, -50%)",
+              zIndex: 60,
             }}
           >
             <div className="bg-card rounded-2xl border border-border p-6 relative" style={{ boxShadow: "var(--shadow-card-hover)" }}>

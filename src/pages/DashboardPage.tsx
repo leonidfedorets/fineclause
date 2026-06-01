@@ -255,50 +255,52 @@ const DashboardPage = () => {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold font-display text-foreground">{t("dashboard.title")}</h1>
-                <p className="text-muted-foreground text-sm mt-1">{user?.email}</p>
+            {/* Dashboard header — stacks on mobile, side-by-side on desktop */}
+            <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground truncate">{t("dashboard.title")}</h1>
+                <p className="text-muted-foreground text-sm mt-1 truncate">{user?.email}</p>
                 <div className="mt-3">
                   {currentTierKey !== "free" ? (
-                    <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 rounded-full px-4 py-1.5">
-                      <Crown className="w-4 h-4 text-accent" />
+                    <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 rounded-full px-3 py-1.5">
+                      <Crown className="w-3.5 h-3.5 text-accent flex-shrink-0" />
                       <span className="text-sm font-semibold text-accent">{currentTier.name} {t("scan.plan")}</span>
                       {subscriptionEnd && (
-                        <span className="text-xs text-muted-foreground ml-1">
+                        <span className="text-xs text-muted-foreground ml-1 hidden sm:inline">
                           · {t("dashboard.renews", { date: new Date(subscriptionEnd).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) })}
                         </span>
                       )}
                     </div>
                   ) : (
-                    <div className="inline-flex items-center gap-2 bg-secondary rounded-full px-4 py-1.5">
+                    <div className="inline-flex items-center gap-2 bg-secondary rounded-full px-3 py-1.5">
                       <span className="text-sm font-medium text-muted-foreground">{t("dashboard.freePlan")}</span>
                     </div>
                   )}
                 </div>
               </div>
-              <div className="flex gap-3">
-                <Button variant="hero" onClick={() => navigate("/scan")}>
+              {/* Action buttons — scrollable row on mobile */}
+              <div className="flex gap-2 overflow-x-auto pb-1 md:overflow-visible md:flex-wrap md:justify-end flex-shrink-0">
+                <Button variant="hero" onClick={() => navigate("/scan")} className="flex-shrink-0">
                   <FileText className="w-4 h-4" />
-                  {t("dashboard.newScan")}
+                  <span className="hidden sm:inline ml-1">{t("dashboard.newScan")}</span>
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/compare")}>
+                <Button variant="outline" onClick={() => navigate("/compare")} className="flex-shrink-0">
                   <ArrowLeftRight className="w-4 h-4" />
-                  {t("dashboard.compare")}
+                  <span className="hidden sm:inline ml-1">{t("dashboard.compare")}</span>
                 </Button>
                 {isPro && subscriptionEnd && (
-                  <Button variant="outline" onClick={handleManageSubscription} disabled={managingPortal}>
+                  <Button variant="outline" onClick={handleManageSubscription} disabled={managingPortal} className="flex-shrink-0">
                     <CreditCard className="w-4 h-4" />
-                    {managingPortal ? t("common.loading") : t("dashboard.billing")}
+                    <span className="hidden sm:inline ml-1">{managingPortal ? t("common.loading") : t("dashboard.billing")}</span>
                   </Button>
                 )}
-                <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)}>
+                <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)} className="flex-shrink-0">
                   <Settings className="w-4 h-4" />
-                  {currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}
+                  <span className="hidden sm:inline ml-1">{currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}</span>
                 </Button>
-                <Button variant="outline" onClick={async () => { await signOut(); navigate("/"); }}>
+                <Button variant="outline" onClick={async () => { await signOut(); navigate("/"); }} className="flex-shrink-0">
                   <LogOut className="w-4 h-4" />
-                  {t("dashboard.signOut")}
+                  <span className="hidden sm:inline ml-1">{t("dashboard.signOut")}</span>
                 </Button>
               </div>
             </div>

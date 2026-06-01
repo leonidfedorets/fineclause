@@ -716,32 +716,37 @@ const InvoicesPage = () => {
                       <Button variant="outline" size="sm" onClick={addItem}><Plus className="w-4 h-4 mr-1" /> {t("invoices.addItem")}</Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     {items.map((item, i) => (
-                      <div key={i} className="grid grid-cols-12 gap-2 items-end">
-                        <div className="col-span-4">
-                          {i === 0 && <Label className="text-xs text-muted-foreground">{t("invoices.description")}</Label>}
-                          <Input value={item.description} onChange={e => updateItem(i, "description", e.target.value)} />
+                      <div key={i} className="rounded-xl border border-border bg-muted/30 p-3 space-y-3">
+                        {/* Description — full width */}
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">{t("invoices.description")}</Label>
+                          <Input value={item.description} onChange={e => updateItem(i, "description", e.target.value)} placeholder="Item description" />
                         </div>
-                        <div className="col-span-1">
-                          {i === 0 && <Label className="text-xs text-muted-foreground">{t("invoices.qty")}</Label>}
-                          <Input type="number" min={1} value={item.quantity} onChange={e => updateItem(i, "quantity", parseInt(e.target.value) || 1)} />
+                        {/* Qty + Unit + Price */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">{t("invoices.qty")}</Label>
+                            <Input type="number" min={1} value={item.quantity} onChange={e => updateItem(i, "quantity", parseInt(e.target.value) || 1)} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">{t("invoices.unit")}</Label>
+                            <Input value={item.unit} onChange={e => updateItem(i, "unit", e.target.value)} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">{t("invoices.price")}</Label>
+                            <Input type="number" min={0} step={0.01} value={item.price} onChange={e => updateItem(i, "price", parseFloat(e.target.value) || 0)} />
+                          </div>
                         </div>
-                        <div className="col-span-2">
-                          {i === 0 && <Label className="text-xs text-muted-foreground">{t("invoices.unit")}</Label>}
-                          <Input value={item.unit} onChange={e => updateItem(i, "unit", e.target.value)} />
-                        </div>
-                        <div className="col-span-2">
-                          {i === 0 && <Label className="text-xs text-muted-foreground">{t("invoices.price")}</Label>}
-                          <Input type="number" min={0} step={0.01} value={item.price} onChange={e => updateItem(i, "price", parseFloat(e.target.value) || 0)} />
-                        </div>
-                        <div className="col-span-2">
-                          {i === 0 && <Label className="text-xs text-muted-foreground">{t("invoices.taxRate")}</Label>}
-                          <Input type="number" min={0} max={100} step={0.5} value={item.taxRate ?? ""} onChange={e => updateItem(i, "taxRate", e.target.value ? parseFloat(e.target.value) : null)} placeholder="—" />
-                        </div>
-                        <div className="col-span-1">
+                        {/* Tax % + Delete */}
+                        <div className="flex items-end gap-2">
+                          <div className="flex-1">
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">{t("invoices.taxRate")} %</Label>
+                            <Input type="number" min={0} max={100} step={0.5} value={item.taxRate ?? ""} onChange={e => updateItem(i, "taxRate", e.target.value ? parseFloat(e.target.value) : null)} placeholder="—" />
+                          </div>
                           {items.length > 1 && (
-                            <Button variant="ghost" size="icon" onClick={() => removeItem(i)}>
+                            <Button variant="ghost" size="icon" onClick={() => removeItem(i)} className="mb-0.5 flex-shrink-0">
                               <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
                           )}
