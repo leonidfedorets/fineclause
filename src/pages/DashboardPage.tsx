@@ -255,21 +255,34 @@ const DashboardPage = () => {
           </div>
         ) : (
           <>
-            {/* Dashboard header — stacks on mobile, side-by-side on desktop */}
-            <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0">
-                <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground truncate">{t("dashboard.title")}</h1>
-                <p className="text-muted-foreground text-sm mt-1 truncate">{user?.email}</p>
-                <div className="mt-3">
+            {/* ── Dashboard header ── */}
+            <div className="mb-6">
+              {/* Top row: title + sign out */}
+              <div className="flex items-center justify-between mb-1">
+                <h1 className="text-2xl font-bold font-display text-foreground">{t("dashboard.title")}</h1>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => { await signOut(); navigate("/"); }}
+                  className="text-muted-foreground hover:text-foreground gap-1.5 -mr-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">{t("dashboard.signOut")}</span>
+                </Button>
+              </div>
+
+              {/* Email (truncated, never overlaps) */}
+              <p className="text-sm text-muted-foreground mb-3 truncate max-w-[240px] sm:max-w-none">
+                {user?.email}
+              </p>
+
+              {/* Plan badge — only on web (mobile has no plans) */}
+              {!isMobile && (
+                <div className="mb-4">
                   {currentTierKey !== "free" ? (
                     <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 rounded-full px-3 py-1.5">
                       <Crown className="w-3.5 h-3.5 text-accent flex-shrink-0" />
                       <span className="text-sm font-semibold text-accent">{currentTier.name} {t("scan.plan")}</span>
-                      {subscriptionEnd && (
-                        <span className="text-xs text-muted-foreground ml-1 hidden sm:inline">
-                          · {t("dashboard.renews", { date: new Date(subscriptionEnd).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) })}
-                        </span>
-                      )}
                     </div>
                   ) : (
                     <div className="inline-flex items-center gap-2 bg-secondary rounded-full px-3 py-1.5">
@@ -277,34 +290,32 @@ const DashboardPage = () => {
                     </div>
                   )}
                 </div>
-              </div>
-              {/* Action buttons — scrollable row on mobile */}
-              <div className="flex gap-2 overflow-x-auto pb-1 md:overflow-visible md:flex-wrap md:justify-end flex-shrink-0">
-                <Button variant="hero" onClick={() => navigate("/scan")} className="flex-shrink-0">
-                  <FileText className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-1">{t("dashboard.newScan")}</span>
+              )}
+
+              {/* Primary actions — 2-column grid on mobile */}
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+                <Button variant="hero" onClick={() => navigate("/scan")} className="w-full sm:w-auto gap-1.5">
+                  <FileText className="w-4 h-4 flex-shrink-0" />
+                  {t("dashboard.newScan")}
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/compare")} className="flex-shrink-0">
-                  <ArrowLeftRight className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-1">{t("dashboard.compare")}</span>
+                <Button variant="outline" onClick={() => navigate("/compare")} className="w-full sm:w-auto gap-1.5">
+                  <ArrowLeftRight className="w-4 h-4 flex-shrink-0" />
+                  {t("dashboard.compare")}
                 </Button>
-                {isPro && subscriptionEnd && (
-                  <Button variant="outline" onClick={handleManageSubscription} disabled={managingPortal} className="flex-shrink-0">
-                    <CreditCard className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-1">{managingPortal ? t("common.loading") : t("dashboard.billing")}</span>
+
+                {/* Web-only: billing & plan management */}
+                {!isMobile && isPro && subscriptionEnd && (
+                  <Button variant="outline" onClick={handleManageSubscription} disabled={managingPortal} className="w-full sm:w-auto gap-1.5">
+                    <CreditCard className="w-4 h-4 flex-shrink-0" />
+                    {managingPortal ? t("common.loading") : t("dashboard.billing")}
                   </Button>
                 )}
-                {/* Hide subscription management on mobile — no paywalls in mobile app */}
                 {!isMobile && (
-                  <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)} className="flex-shrink-0">
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-1">{currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}</span>
+                  <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)} className="w-full sm:w-auto gap-1.5">
+                    <Settings className="w-4 h-4 flex-shrink-0" />
+                    {currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}
                   </Button>
                 )}
-                <Button variant="outline" onClick={async () => { await signOut(); navigate("/"); }} className="flex-shrink-0">
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-1">{t("dashboard.signOut")}</span>
-                </Button>
               </div>
             </div>
 
@@ -339,40 +350,45 @@ const DashboardPage = () => {
                         <div
                           key={scan.id}
                           onClick={() => setSelectedScan(scan)}
-                          className="rounded-xl bg-card border border-border p-5 flex items-center gap-4 transition-all hover:border-accent/30 cursor-pointer group"
+                          className="rounded-xl bg-card border border-border p-4 transition-all hover:border-accent/30 cursor-pointer group"
                           style={{ boxShadow: "var(--shadow-card)" }}
                         >
-                          <FileText className="w-10 h-10 text-muted-foreground flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-1">
-                              <h4 className="font-semibold font-display text-foreground truncate group-hover:text-accent transition-colors">
+                          {/* Top row: filename + score + delete */}
+                          <div className="flex items-start gap-3">
+                            <FileText className="w-8 h-8 text-muted-foreground flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold font-display text-foreground truncate group-hover:text-accent transition-colors text-sm leading-tight">
                                 {scan.file_name}
                               </h4>
                               {scan.document_type && (
-                                <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full flex-shrink-0">
+                                <span className="inline-block text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full mt-1">
                                   {scan.document_type}
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground truncate">{scan.summary || t("dashboard.noSummary")}</p>
-                          </div>
-                          <div className="flex items-center gap-4 flex-shrink-0">
+                            {/* Score badge */}
                             {scan.risk_score !== null && (
-                              <span className={`text-2xl font-bold font-display ${riskColor(scan.risk_score)}`}>
+                              <span className={`text-xl font-bold font-display flex-shrink-0 ${riskColor(scan.risk_score)}`}>
                                 {scan.risk_score}
                               </span>
                             )}
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {new Date(scan.created_at).toLocaleDateString()}
-                            </div>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleDelete(scan.id); }}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                              className="flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1 -mr-1"
                               title={t("dashboard.deleteScan")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
+                          </div>
+                          {/* Bottom row: summary + date */}
+                          <div className="mt-2 pl-11 flex items-center justify-between gap-2">
+                            <p className="text-xs text-muted-foreground truncate flex-1">
+                              {scan.summary || t("dashboard.noSummary")}
+                            </p>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                              <Clock className="w-3 h-3" />
+                              {new Date(scan.created_at).toLocaleDateString()}
+                            </div>
                           </div>
                         </div>
                       ))

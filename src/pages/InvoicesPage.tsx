@@ -142,7 +142,7 @@ const computeNextGenerateAt = (type: string, day: number, weekday: number) => {
 };
 
 const InvoicesPage = () => {
-  const { user, currentTierKey } = useAuth();
+  const { user, currentTierKey, isMobile } = useAuth();
   const { t } = useTranslation();
   const { SCHEDULE_TYPES, WEEKDAYS, INVOICE_TYPES, getScheduleLabel } = useInvoiceConstants();
   const navigate = useNavigate();
@@ -212,7 +212,8 @@ const InvoicesPage = () => {
   const [originalInvoiceRef, setOriginalInvoiceRef] = useState("");
   const [items, setItems] = useState<LineItem[]>([{ description: "", quantity: 1, unit: "pcs", price: 0, taxRate: null }]);
 
-  const hasAccess = ["invoice", "enterprise", "pro"].includes(currentTierKey);
+  // Mobile: all authenticated users have full access — no subscription check
+  const hasAccess = isMobile ? true : ["invoice", "enterprise", "pro"].includes(currentTierKey);
 
   useEffect(() => {
     if (user) {
@@ -601,7 +602,7 @@ const InvoicesPage = () => {
           <p className="text-muted-foreground mb-6">
             {t("invoices.noAccessDesc")}
           </p>
-          <Button variant="hero" size="lg" onClick={() => navigate("/#pricing")}>{t("invoices.viewPlans")}</Button>
+          {!isMobile && <Button variant="hero" size="lg" onClick={() => navigate("/#pricing")}>{t("invoices.viewPlans")}</Button>}
         </div>
       </div>
     );

@@ -61,7 +61,7 @@ const DropdownLink = ({ to, onClick, icon, children }: { to: string; onClick: ()
 );
 
 const Navbar = () => {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, signOut, isMobile } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { t } = useTranslation();
   const location = useLocation();
@@ -130,18 +130,23 @@ const Navbar = () => {
         <DropdownLink to="/carbon" onClick={close}>{t("nav.carbon")}</DropdownLink>
         <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
       </NavDropdown>
-      <a href="/#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-        {t("nav.pricing")}
-      </a>
+      {!isMobile && (
+        <a href="/#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          {t("nav.pricing")}
+        </a>
+      )}
       <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
         {t("nav.signIn")}
       </Link>
-      <Link
-        to="/signup"
-        className="text-sm font-semibold bg-accent text-accent-foreground px-5 py-2 rounded-lg hover:bg-accent/90 transition-all hover:shadow-[0_4px_16px_hsl(221_83%_53%/0.35)] active:scale-[0.98]"
-      >
-        {t("nav.tryFree")}
-      </Link>
+      {/* Hide "Try Free" on mobile — user already has the app */}
+      {!isMobile && (
+        <Link
+          to="/signup"
+          className="text-sm font-semibold bg-accent text-accent-foreground px-5 py-2 rounded-lg hover:bg-accent/90 transition-all hover:shadow-[0_4px_16px_hsl(221_83%_53%/0.35)] active:scale-[0.98]"
+        >
+          {t("nav.tryFree")}
+        </Link>
+      )}
     </>
   );
 

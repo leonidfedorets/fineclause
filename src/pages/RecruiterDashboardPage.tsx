@@ -61,7 +61,7 @@ interface JobWithMatches {
 }
 
 const RecruiterDashboardPage = () => {
-  const { user, currentTierKey } = useAuth();
+  const { user, currentTierKey, isMobile } = useAuth();
   const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -232,9 +232,7 @@ const RecruiterDashboardPage = () => {
             <Button onClick={() => navigate("/agency/signup")}>
               Register as Agency — €25/mo
             </Button>
-            <Button variant="outline" onClick={() => navigate("/#pricing")}>
-              View Plans
-            </Button>
+            {!isMobile && <Button variant="outline" onClick={() => navigate("/#pricing")}>View Plans</Button>}
           </div>
         </main>
         <Footer />
