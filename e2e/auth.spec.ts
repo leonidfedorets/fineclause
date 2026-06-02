@@ -137,13 +137,13 @@ test.describe("Login page", () => {
     await goToLogin(page);
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
-    await expect(page.getByRole("button", { name: /sign in|log in/i })).toBeVisible();
+    await expect(page.locator('[data-testid="login-submit-btn"]')).toBeVisible();
   });
 
   test("shows error for wrong credentials", async ({ page }) => {
     await goToLogin(page);
     await fillLoginForm(page, "nonexistent@fineclause.com", "wrongpassword");
-    await page.getByRole("button", { name: /sign in|log in/i }).click();
+    await page.locator('[data-testid="login-submit-btn"]').click();
     await expect(
       page.getByText(/invalid|incorrect|wrong|not found|credentials/i).first()
     ).toBeVisible({ timeout: 10000 });
@@ -152,7 +152,7 @@ test.describe("Login page", () => {
   test("shows error for empty email", async ({ page }) => {
     await goToLogin(page);
     await page.fill('input[type="password"]', "password123");
-    await page.getByRole("button", { name: /sign in|log in/i }).click();
+    await page.locator('[data-testid="login-submit-btn"]').click();
     const emailInput = page.locator('input[type="email"]');
     const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
     expect(isInvalid).toBeTruthy();

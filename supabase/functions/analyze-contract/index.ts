@@ -137,7 +137,10 @@ serve(async (req) => {
       );
     }
 
-    // --- Scan quota enforcement (uses cached subscription_product_id from profiles) ---
+    // Mobile Capacitor app: authenticated users get unlimited scans — no paywall
+    const isMobileClient = req.headers.get("X-Mobile-Client") === "capacitor";
+
+    // --- Scan quota enforcement ---
     const { data: profile } = await adminClient
       .from("profiles")
       .select("is_pro, free_scans_used, subscription_product_id")
@@ -153,7 +156,10 @@ serve(async (req) => {
 
     let scanLimit: number | null = FREE_SCAN_LIMIT;
 
-    if (profile?.is_pro) {
+    // Mobile authenticated users: unlimited scans
+    if (isMobileClient) {
+      scanLimit = null;
+    } else if (profile?.is_pro) {
       scanLimit = null;
     } else if (profile?.subscription_product_id && profile.subscription_product_id in TIER_LIMITS) {
       scanLimit = TIER_LIMITS[profile.subscription_product_id];

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getTierByProductId } from "@/lib/subscriptionTiers";
+import { isMobileApp } from "@/lib/isMobileApp";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
@@ -9,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   isPro: boolean;
   isAdmin: boolean;
+  isMobile: boolean;           // true when running inside Capacitor native app
   subscriptionEnd: string | null;
   currentTierKey: string;
   checkSubscription: () => Promise<void>;
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isPro: false,
   isAdmin: false,
+  isMobile: false,
   subscriptionEnd: null,
   currentTierKey: "free",
   checkSubscription: async () => {},
@@ -38,7 +41,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [currentTierKey, setCurrentTierKey] = useState("free");
 
+  // Detect mobile once — stable across renders
+  const mobile = isMobileApp();
+
   const checkSubscription = useCallback(async () => {
+    // On mobile: authenticated users always get full access — no subscription check needed
+    if (mobile) return;
+
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (!error && data) {
@@ -57,9 +66,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (e) {
       console.error("Failed to check subscription:", e);
     }
-  }, []);
+  }, [mobile]);
 
-  // FIX: must filter by the current user's ID, not just any admin row
   const checkRole = useCallback(async (userId: string) => {
     try {
       const { data } = await supabase
@@ -81,12 +89,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        setTimeout(() => {
-          checkSubscription();
-          checkRole(session.user.id);
-        }, 0);
+        // Mobile: immediately set as pro — all features unlocked
+        if (mobile) {
+          setIsPro(true);
+          setCurrentTierKey("pro");
+        } else {
+          setTimeout(() => { checkSubscription(); }, 0);
+        }
+        checkRole(session.user.id);
       } else {
         setIsAdmin(false);
+        setIsPro(false);
         setCurrentTierKey("free");
       }
     });
@@ -96,19 +109,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        checkSubscription();
+        if (mobile) {
+          setIsPro(true);
+          setCurrentTierKey("pro");
+        } else {
+          checkSubscription();
+        }
         checkRole(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [checkSubscription, checkRole]);
+  }, [checkSubscription, checkRole, mobile]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || mobile) return;
     const interval = setInterval(checkSubscription, 60000);
     return () => clearInterval(interval);
-  }, [user, checkSubscription]);
+  }, [user, checkSubscription, mobile]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -119,7 +137,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isPro, isAdmin, subscriptionEnd, currentTierKey, checkSubscription, signOut }}>
+    <AuthContext.Provider value={{
+      user, session, loading, isPro, isAdmin,
+      isMobile: mobile,
+      subscriptionEnd, currentTierKey, checkSubscription, signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   );

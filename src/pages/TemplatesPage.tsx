@@ -37,7 +37,7 @@ interface UserTemplate {
 
 const TemplatesPage = () => {
   const { t } = useTranslation();
-  const { user, currentTierKey } = useAuth();
+  const { user, currentTierKey, isMobile } = useAuth();
   const { toast } = useToast();
   const [templates, setTemplates] = useState<ContractTemplate[]>([]);
   const [userTemplates, setUserTemplates] = useState<UserTemplate[]>([]);
@@ -47,7 +47,8 @@ const TemplatesPage = () => {
   const [openTemplate, setOpenTemplate] = useState<ContractTemplate | null>(null);
   const [activeTab, setActiveTab] = useState("library");
 
-  const canDownload = currentTierKey !== "free";
+  // Mobile: all authenticated users can download/use templates freely
+  const canDownload = isMobile ? !!user : currentTierKey !== "free";
 
   const refreshPublicTemplates = useCallback(async () => {
     const { data } = await supabase

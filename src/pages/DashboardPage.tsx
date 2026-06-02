@@ -47,7 +47,7 @@ const riskLabel: Record<string, string> = {
 
 const DashboardPage = () => {
   const { t } = useTranslation();
-  const { user, signOut, isPro, isAdmin, subscriptionEnd, currentTierKey } = useAuth();
+  const { user, signOut, isPro, isAdmin, subscriptionEnd, currentTierKey, isMobile } = useAuth();
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState<ScanRecord | null>(null);
@@ -294,10 +294,13 @@ const DashboardPage = () => {
                     <span className="hidden sm:inline ml-1">{managingPortal ? t("common.loading") : t("dashboard.billing")}</span>
                   </Button>
                 )}
-                <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)} className="flex-shrink-0">
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-1">{currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}</span>
-                </Button>
+                {/* Hide subscription management on mobile — no paywalls in mobile app */}
+                {!isMobile && (
+                  <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)} className="flex-shrink-0">
+                    <Settings className="w-4 h-4" />
+                    <span className="hidden sm:inline ml-1">{currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}</span>
+                  </Button>
+                )}
                 <Button variant="outline" onClick={async () => { await signOut(); navigate("/"); }} className="flex-shrink-0">
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline ml-1">{t("dashboard.signOut")}</span>

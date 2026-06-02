@@ -84,7 +84,7 @@ const CopyButton = ({ text }: { text: string }) => {
 
 const ScanPage = () => {
   const { t } = useTranslation();
-  const { user, isPro, checkSubscription, currentTierKey } = useAuth();
+  const { user, isPro, checkSubscription, currentTierKey, isMobile } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [pastedText, setPastedText] = useState("");
   const [inputMode, setInputMode] = useState<"file" | "text">("file");
@@ -97,7 +97,8 @@ const ScanPage = () => {
   const [barAnimated, setBarAnimated] = useState(false);
 
   const currentTier = getTierByKey(currentTierKey);
-  const scanLimit = currentTier.scansPerMonth;
+  // Mobile + authenticated = unlimited scans, no paywall
+  const scanLimit = (isMobile && user) ? null : currentTier.scansPerMonth;
   const canScan = scanLimit === null || freeScansUsed < scanLimit;
   const hasInput = inputMode === "file" ? !!file : pastedText.trim().length > 0;
   const scansRemaining = scanLimit !== null ? Math.max(0, scanLimit - freeScansUsed) : null;
@@ -214,7 +215,11 @@ const ScanPage = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke("analyze-contract", { body });
+      const { data, error } = await supabase.functions.invoke("analyze-contract", {
+        body,
+        // Tell backend this is a mobile client → skip scan limits for auth users
+        headers: isMobile ? { "X-Mobile-Client": "capacitor" } : undefined,
+      });
 
       if (error) {
         console.error("Edge function error:", error);
@@ -354,7 +359,8 @@ const ScanPage = () => {
               )}
             </div>
 
-            {user && !canScan && !profileLoading && (
+            {/* Upgrade wall — hidden on mobile (all auth users have full access) */}
+            {user && !canScan && !profileLoading && !isMobile && (
               <div className="rounded-2xl bg-card border border-accent/30 p-8 text-center mb-8" style={{ boxShadow: "var(--shadow-card)" }}>
                 <Lock className="w-10 h-10 text-accent mx-auto mb-4" />
                 <h2 className="text-xl font-bold font-display text-foreground mb-2">{t("scan.scanLimitTitle")}</h2>

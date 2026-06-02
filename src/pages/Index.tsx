@@ -12,12 +12,14 @@ import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const Index = () => {
   const navigate = useNavigate();
   const ctaRef = useRef(null);
   const ctaInView = useInView(ctaRef, { once: true, margin: "-100px" });
   const { t } = useTranslation();
+  const mobile = isMobileApp();
 
   return (
     <div className="min-h-screen bg-background">
@@ -27,7 +29,10 @@ const Index = () => {
         <HowItWorksSection />
         <FeaturesSection />
         <WhatWeCatchSection />
-        <PricingSection />
+
+        {/* Pricing — hidden on mobile app (no subscriptions in mobile) */}
+        {!mobile && <PricingSection />}
+
         <TestimonialsSection />
         <FAQSection />
 
@@ -65,12 +70,14 @@ const Index = () => {
                   >
                     {t("cta.button")}
                   </button>
-                  <button
-                    onClick={() => navigate("/signup")}
-                    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-white/30 text-white text-sm font-medium hover:bg-white/10 transition-colors"
-                  >
-                    Create free account
-                  </button>
+                  {!mobile && (
+                    <button
+                      onClick={() => navigate("/signup")}
+                      className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-white/30 text-white text-sm font-medium hover:bg-white/10 transition-colors"
+                    >
+                      Create free account
+                    </button>
+                  )}
                 </div>
               </motion.div>
             </div>
