@@ -10,6 +10,7 @@ import Navbar from "@/components/Navbar";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const { isSupported, authenticateWithPasskey } = useWebAuthn();
+  const { isMobile } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +124,7 @@ const LoginPage = () => {
             </form>
 
             {/* Passkey sign-in — only shown when WebAuthn is supported */}
-            {isSupported && (
+            {isSupported && !isMobile && (
               <div className="mt-4" data-testid="passkey-section">
                 <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
