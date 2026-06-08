@@ -211,7 +211,10 @@ const Navbar = () => {
           {!user && (
             <div className="flex flex-col gap-2 pt-4 border-t border-border mt-2">
               <Link to="/login" className="text-sm font-medium text-center py-2.5 rounded-lg border border-border text-foreground hover:bg-muted transition-colors" onClick={close}>{t("nav.signIn")}</Link>
-              <Link to="/signup" className="text-sm font-semibold text-center py-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors" onClick={close}>{t("nav.tryFree")}</Link>
+              {/* "Try for free" hidden in the mobile app — everything in the app is already free */}
+              {!isMobile && (
+                <Link to="/signup" className="text-sm font-semibold text-center py-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors" onClick={close}>{t("nav.tryFree")}</Link>
+              )}
             </div>
           )}
           <div className="flex items-center gap-3 pt-4 border-t border-border mt-2">
