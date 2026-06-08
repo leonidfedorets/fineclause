@@ -7,9 +7,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const mobile = isMobileApp();
   const { t } = useTranslation();
 
   const trustItems = [
@@ -218,13 +220,15 @@ const HeroSection = () => {
                   <Upload className="w-4 h-4" />
                   {t("career.analyzeCv")}
                 </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigate("/employers"); }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted/50 transition-colors"
-                >
-                  <BriefcaseBusiness className="w-4 h-4" />
-                  {t("career.imHiring")}
-                </button>
+                {!mobile && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigate("/employers"); }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted/50 transition-colors"
+                  >
+                    <BriefcaseBusiness className="w-4 h-4" />
+                    {t("career.imHiring")}
+                  </button>
+                )}
               </div>
 
               {/* Feature grid */}
@@ -233,7 +237,7 @@ const HeroSection = () => {
                   { icon: BarChart3, label: t("career.cvScore") },
                   { icon: DollarSign, label: t("career.salaryRange") },
                   { icon: Target, label: t("career.skillGaps") },
-                  { icon: Users, label: t("career.recruiterMatch") },
+                  ...(mobile ? [] : [{ icon: Users, label: t("career.recruiterMatch") }]),
                 ].map((f) => (
                   <div key={f.label} className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50 border border-border/60">
                     <f.icon className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
@@ -245,31 +249,33 @@ const HeroSection = () => {
           </motion.div>
         </div>
 
-        {/* Business tools strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mt-6 bg-card border border-border rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-              <Zap className="w-5 h-5 text-emerald-500" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground mb-0.5">{t("career.agencyTitle")}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-md">{t("career.agencyDesc")}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate("/employers")}
-            className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+        {/* Business tools strip — hidden in the mobile app (Apple 3.1.1: no agency/business account flows) */}
+        {!mobile && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mt-6 bg-card border border-border rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
           >
-            {t("career.agencyButton")}
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </motion.div>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                <Zap className="w-5 h-5 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-0.5">{t("career.agencyTitle")}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-md">{t("career.agencyDesc")}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate("/employers")}
+              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+            >
+              {t("career.agencyButton")}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
       </div>
     </section>
   );

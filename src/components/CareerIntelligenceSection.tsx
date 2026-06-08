@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { isMobileApp } from "@/lib/isMobileApp";
 import {
   Upload,
   BarChart3,
@@ -18,6 +19,7 @@ import {
 
 const CareerIntelligenceSection = () => {
   const navigate = useNavigate();
+  const mobile = isMobileApp();
   const sectionRef = useRef(null);
   const inView = useInView(sectionRef, { once: true, margin: "-80px" });
 
@@ -37,12 +39,15 @@ const CareerIntelligenceSection = () => {
       title: "Skill Gap Analysis",
       desc: "Identify missing skills for your target roles with improvement tips.",
     },
-    {
+  ];
+
+  if (!mobile) {
+    features.push({
       icon: Users,
       title: "Recruiter Matching",
       desc: "Opt in to connect with vetted agencies actively hiring for your profile.",
-    },
-  ];
+    });
+  }
 
   return (
     <section
@@ -87,15 +92,17 @@ const CareerIntelligenceSection = () => {
                 <Upload className="w-4 h-4 mr-2" />
                 Analyze Your CV
               </Button>
-              <Button
-                variant="heroOutline"
-                size="lg"
-                className="text-sm"
-                onClick={() => navigate("/employers")}
-              >
-                <BriefcaseBusiness className="w-4 h-4 mr-2" />
-                I'm Hiring
-              </Button>
+              {!mobile && (
+                <Button
+                  variant="heroOutline"
+                  size="lg"
+                  className="text-sm"
+                  onClick={() => navigate("/employers")}
+                >
+                  <BriefcaseBusiness className="w-4 h-4 mr-2" />
+                  I'm Hiring
+                </Button>
+              )}
             </div>
           </div>
         </motion.div>
@@ -118,34 +125,36 @@ const CareerIntelligenceSection = () => {
           ))}
         </div>
 
-        {/* For Agencies CTA */}
-        <motion.div
-          className="mt-12 p-8 rounded-sm border border-border bg-card flex flex-col md:flex-row items-center justify-between gap-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.4, delay: 0.5 }}
-        >
-          <div className="flex items-start gap-4">
-            <FileSearch className="w-10 h-10 text-accent flex-shrink-0 mt-1" />
-            <div>
-              <h3 className="text-lg font-bold font-display mb-1">
-                Recruitment Agencies
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
-                Access pre-scored, consent-verified candidate leads in real time.
-                Filter by skills, salary range, and location. GDPR compliant.
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            className="flex-shrink-0"
-            onClick={() => navigate("/contact")}
+        {/* For Agencies CTA — hidden in the mobile app (Apple 3.1.1: no business/agency account flows) */}
+        {!mobile && (
+          <motion.div
+            className="mt-12 p-8 rounded-sm border border-border bg-card flex flex-col md:flex-row items-center justify-between gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4, delay: 0.5 }}
           >
-            Request Agency Access
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </motion.div>
+            <div className="flex items-start gap-4">
+              <FileSearch className="w-10 h-10 text-accent flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-lg font-bold font-display mb-1">
+                  Recruitment Agencies
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+                  Access pre-scored, consent-verified candidate leads in real time.
+                  Filter by skills, salary range, and location. GDPR compliant.
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              className="flex-shrink-0"
+              onClick={() => navigate("/contact")}
+            >
+              Request Agency Access
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </motion.div>
+        )}
       </div>
     </section>
   );

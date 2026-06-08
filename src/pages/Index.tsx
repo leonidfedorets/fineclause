@@ -36,7 +36,8 @@ const Index = () => {
         <TestimonialsSection />
         <FAQSection />
 
-        {/* CTA Banner */}
+        {/* CTA Banner — hidden in the mobile app (Apple 3.1.1: no "free trial / no credit card" sign-up prompts) */}
+        {!mobile && (
         <section ref={ctaRef} className="relative overflow-hidden bg-accent">
           <div className="absolute inset-0 dot-grid opacity-10 pointer-events-none" />
           <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
@@ -83,6 +84,7 @@ const Index = () => {
             </div>
           </div>
         </section>
+        )}
 
         <Footer />
       </div>

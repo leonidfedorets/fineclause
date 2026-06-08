@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { isMobileApp } from "@/lib/isMobileApp";
 import JobMatchesSection, { type JobMatch, type AllJob } from "@/components/JobMatchesSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ interface CVAnalysis {
 }
 
 const CareersPage = () => {
+  const mobile = isMobileApp();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [email, setEmail] = useState("");
@@ -188,7 +190,7 @@ const CareersPage = () => {
     { icon: Target, title: t("careers.skillGapFeature"), description: t("careers.skillGapFeatureDesc") },
     { icon: TrendingUp, title: t("careers.trajectoryFeature"), description: t("careers.trajectoryFeatureDesc") },
     { icon: ShieldCheck, title: t("careers.privacyFeature"), description: t("careers.privacyFeatureDesc") },
-    { icon: Users, title: t("careers.recruiterFeature"), description: t("careers.recruiterFeatureDesc") },
+    ...(mobile ? [] : [{ icon: Users, title: t("careers.recruiterFeature"), description: t("careers.recruiterFeatureDesc") }]),
   ];
 
   const steps = [
@@ -292,12 +294,14 @@ const CareersPage = () => {
                     {t("careers.consentAnalysis")} <span className="text-foreground font-medium">{t("careers.consentRequired")}</span>
                   </label>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Checkbox id="consent-recruiter" checked={consentRecruiter} onCheckedChange={(v) => setConsentRecruiter(v === true)} disabled={isAnalyzing} className="mt-0.5" />
-                  <label htmlFor="consent-recruiter" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-                    {t("careers.consentRecruiter")} <span className="text-muted-foreground/60">{t("careers.consentOptional")}</span>
-                  </label>
-                </div>
+                {!mobile && (
+                  <div className="flex items-start gap-3">
+                    <Checkbox id="consent-recruiter" checked={consentRecruiter} onCheckedChange={(v) => setConsentRecruiter(v === true)} disabled={isAnalyzing} className="mt-0.5" />
+                    <label htmlFor="consent-recruiter" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                      {t("careers.consentRecruiter")} <span className="text-muted-foreground/60">{t("careers.consentOptional")}</span>
+                    </label>
+                  </div>
+                )}
               </div>
 
               {/* Privacy note */}
@@ -407,8 +411,8 @@ const CareersPage = () => {
                   </div>
                 </Card>
 
-                {/* Job Matches */}
-                <JobMatchesSection matches={jobMatches} allJobs={allJobs} />
+                {/* Job Matches — hidden in the mobile app (Apple 3.1.1: no recruiter/employer flows) */}
+                {!mobile && <JobMatchesSection matches={jobMatches} allJobs={allJobs} />}
 
                 <div className="text-center mt-8">
                   <Button variant="outline" onClick={() => { setAnalysis(null); setJobMatches([]); setAllJobs([]); setSelectedFile(null); setEmail(""); setConsentAnalysis(false); setConsentRecruiter(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>

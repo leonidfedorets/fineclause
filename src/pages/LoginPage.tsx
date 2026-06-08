@@ -64,18 +64,21 @@ const LoginPage = () => {
           </Link>
 
           <div className="rounded-xl bg-card border border-border p-8" style={{ boxShadow: "var(--shadow-card)" }}>
-            <Tabs value={tab} onValueChange={(v) => setTab(v as "personal" | "agency")} className="mb-6">
-              <TabsList className="w-full">
-                <TabsTrigger value="personal" className="flex-1 gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  {t("auth.personal")}
-                </TabsTrigger>
-                <TabsTrigger value="agency" className="flex-1 gap-1.5">
-                  <Building2 className="w-3.5 h-3.5" />
-                  {t("auth.agency")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Agency tab hidden in the mobile app (Apple 3.1.1: no business/agency account flows) */}
+            {!isMobile && (
+              <Tabs value={tab} onValueChange={(v) => setTab(v as "personal" | "agency")} className="mb-6">
+                <TabsList className="w-full">
+                  <TabsTrigger value="personal" className="flex-1 gap-1.5">
+                    <User className="w-3.5 h-3.5" />
+                    {t("auth.personal")}
+                  </TabsTrigger>
+                  <TabsTrigger value="agency" className="flex-1 gap-1.5">
+                    <Building2 className="w-3.5 h-3.5" />
+                    {t("auth.agency")}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
 
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold font-display text-foreground">{t("auth.welcomeBack")}</h1>

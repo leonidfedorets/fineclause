@@ -92,7 +92,9 @@ const Navbar = () => {
 
       <NavDropdown label={t("nav.groupCareer")} icon={<Briefcase className="w-3.5 h-3.5" />} active={isCareerActive}>
         <DropdownLink to="/careers" onClick={close} icon={<Briefcase className="w-3.5 h-3.5" />}>{t("nav.careers")}</DropdownLink>
-        <DropdownLink to="/recruiter" onClick={close} icon={<FileSearch className="w-3.5 h-3.5" />}>{t("nav.recruiterDashboard")}</DropdownLink>
+        {!isMobile && (
+          <DropdownLink to="/recruiter" onClick={close} icon={<FileSearch className="w-3.5 h-3.5" />}>{t("nav.recruiterDashboard")}</DropdownLink>
+        )}
       </NavDropdown>
 
       <NavDropdown label={t("nav.groupBusiness")} icon={<FileText className="w-3.5 h-3.5" />} active={isBusinessActive}>
@@ -196,7 +198,9 @@ const Navbar = () => {
           </MobileSection>
           <MobileSection label={t("nav.groupCareer")} icon={<Briefcase className="w-4 h-4" />}>
             <Link to="/careers" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.careers")}</Link>
-            <Link to="/recruiter" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.recruiterDashboard")}</Link>
+            {!isMobile && (
+              <Link to="/recruiter" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.recruiterDashboard")}</Link>
+            )}
           </MobileSection>
           <MobileSection label={t("nav.groupBusiness")} icon={<FileText className="w-4 h-4" />}>
             <Link to="/invoices" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.invoices")}</Link>

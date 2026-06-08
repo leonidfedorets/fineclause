@@ -10,11 +10,14 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const SignupPage = () => {
   const { t } = useTranslation();
+  const mobile = isMobileApp();
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("type") === "agency" ? "agency" : "personal";
+  // Agency sign-up is not available in the mobile app (Apple 3.1.1: no business/agency account flows)
+  const initialTab = !mobile && searchParams.get("type") === "agency" ? "agency" : "personal";
   const [tab, setTab] = useState<"personal" | "agency">(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -122,18 +125,21 @@ const SignupPage = () => {
           </Link>
 
           <div className="rounded-sm bg-card border border-border p-8" style={{ boxShadow: "var(--shadow-card)" }}>
-            <Tabs value={tab} onValueChange={(v) => { setTab(v as "personal" | "agency"); setAgencyStep("register"); }} className="mb-6">
-              <TabsList className="w-full">
-                <TabsTrigger value="personal" className="flex-1 gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  {t("auth.personal")}
-                </TabsTrigger>
-                <TabsTrigger value="agency" className="flex-1 gap-1.5">
-                  <Building2 className="w-3.5 h-3.5" />
-                  {t("auth.agency")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Agency tab hidden in the mobile app (Apple 3.1.1: no business/agency account flows) */}
+            {!mobile && (
+              <Tabs value={tab} onValueChange={(v) => { setTab(v as "personal" | "agency"); setAgencyStep("register"); }} className="mb-6">
+                <TabsList className="w-full">
+                  <TabsTrigger value="personal" className="flex-1 gap-1.5">
+                    <User className="w-3.5 h-3.5" />
+                    {t("auth.personal")}
+                  </TabsTrigger>
+                  <TabsTrigger value="agency" className="flex-1 gap-1.5">
+                    <Building2 className="w-3.5 h-3.5" />
+                    {t("auth.agency")}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
 
             {tab === "personal" ? (
               <>

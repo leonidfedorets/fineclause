@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Flag, Zap, BarChart3, MessageSquare, GitCompare, Archive, ArrowRight } from "lucide-react";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const features = [
   { icon: Flag, color: "text-rose-500", bg: "bg-rose-500/8", titleKey: "features.redFlag", descKey: "features.redFlagDesc" },
@@ -13,6 +14,7 @@ const features = [
 
 const FeaturesSection = () => {
   const { t } = useTranslation();
+  const mobile = isMobileApp();
 
   return (
     <section className="relative py-24 border-y border-border overflow-hidden">
@@ -68,25 +70,27 @@ const FeaturesSection = () => {
           ))}
         </div>
 
-        {/* Bottom CTA row */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card border border-border rounded-2xl"
-        >
-          <div>
-            <p className="text-sm font-semibold text-foreground mb-0.5">Ready to protect your business?</p>
-            <p className="text-xs text-muted-foreground">Join thousands of professionals using FineClause daily.</p>
-          </div>
-          <a
-            href="/signup"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-all hover:shadow-[0_4px_16px_hsl(221_83%_53%/0.3)] flex-shrink-0"
+        {/* Bottom CTA row — hidden in the mobile app (Apple 3.1.1: no external sign-up/upgrade prompts) */}
+        {!mobile && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card border border-border rounded-2xl"
           >
-            Start for free <ArrowRight className="w-4 h-4" />
-          </a>
-        </motion.div>
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-0.5">Ready to protect your business?</p>
+              <p className="text-xs text-muted-foreground">Join thousands of professionals using FineClause daily.</p>
+            </div>
+            <a
+              href="/signup"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-all hover:shadow-[0_4px_16px_hsl(221_83%_53%/0.3)] flex-shrink-0"
+            >
+              Start for free <ArrowRight className="w-4 h-4" />
+            </a>
+          </motion.div>
+        )}
       </div>
     </section>
   );

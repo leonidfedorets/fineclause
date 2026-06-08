@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Mail, MessageCircle, ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const Footer = () => {
   const { t } = useTranslation();
+  const mobile = isMobileApp();
 
   const sections = [
     {
@@ -17,12 +19,14 @@ const Footer = () => {
     },
     {
       title: "Career",
-      links: [
-        { label: "CV Analysis", to: "/careers" },
-        { label: "Job Matching", to: "/careers" },
-        { label: "For Employers", to: "/employers" },
-        { label: "Recruiter Dashboard", to: "/recruiter" },
-      ],
+      links: mobile
+        ? [{ label: "CV Analysis", to: "/careers" }]
+        : [
+            { label: "CV Analysis", to: "/careers" },
+            { label: "Job Matching", to: "/careers" },
+            { label: "For Employers", to: "/employers" },
+            { label: "Recruiter Dashboard", to: "/recruiter" },
+          ],
     },
     {
       title: "Company",

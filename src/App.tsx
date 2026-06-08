@@ -34,8 +34,18 @@ import TaxEstimationPage from "./pages/TaxEstimationPage";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const queryClient = new QueryClient();
+const mobileApp = isMobileApp();
+
+/**
+ * Apple App Review (Guideline 3.1.1) does not allow business/agency account
+ * registration or recruiter/employer flows in the mobile app — only the free
+ * CV analysis stays. These routes redirect to the careers (CV analysis) page
+ * when running inside the Capacitor native shell.
+ */
+const MobileBlockedRoute = () => <Navigate to="/careers" replace />;
 
 /**
  * Scrolls to a hash anchor after route changes.
@@ -88,9 +98,9 @@ const App = () => (
               <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
               <Route path="/cookies" element={<CookiesPage />} />
               <Route path="/careers" element={<CareersPage />} />
-              <Route path="/employers" element={<EmployersPage />} />
-              <Route path="/recruiter" element={<ProtectedRoute><RecruiterDashboardPage /></ProtectedRoute>} />
-              <Route path="/agency/signup" element={<Navigate to="/signup?type=agency" replace />} />
+              <Route path="/employers" element={mobileApp ? <MobileBlockedRoute /> : <EmployersPage />} />
+              <Route path="/recruiter" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><RecruiterDashboardPage /></ProtectedRoute>} />
+              <Route path="/agency/signup" element={mobileApp ? <MobileBlockedRoute /> : <Navigate to="/signup?type=agency" replace />} />
               <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
               <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
               <Route path="/carbon" element={<ProtectedRoute><CarbonFootprintPage /></ProtectedRoute>} />
