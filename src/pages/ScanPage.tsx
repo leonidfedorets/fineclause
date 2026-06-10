@@ -582,7 +582,8 @@ const ScanPage = () => {
                 <Download className="w-4 h-4" />
                 {t("scan.downloadReport")}
               </Button>
-              {!isPro && (
+              {/* Upgrade CTA hidden on mobile — no in-app subscriptions (Apple 3.1.1) */}
+              {!isPro && !isMobile && (
                 <Button variant="hero" size="lg" onClick={handleUpgrade} disabled={checkoutLoading}>
                   {checkoutLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> {t("common.loading")}</> : t("scan.unlockUnlimited")}
                 </Button>

@@ -10,12 +10,19 @@ const Footer = () => {
   const sections = [
     {
       title: "Product",
-      links: [
-        { label: "Contract Scanner", to: "/scan" },
-        { label: "Templates", to: "/templates" },
-        { label: "Analytics", to: "/dashboard" },
-        { label: "Invoices", to: "/invoices" },
-      ],
+      // Templates & Invoices are paid "enterprise" services sold via web
+      // subscription — not available in the mobile app (Apple 3.1.1/3.1.3c)
+      links: mobile
+        ? [
+            { label: "Contract Scanner", to: "/scan" },
+            { label: "Analytics", to: "/dashboard" },
+          ]
+        : [
+            { label: "Contract Scanner", to: "/scan" },
+            { label: "Templates", to: "/templates" },
+            { label: "Analytics", to: "/dashboard" },
+            { label: "Invoices", to: "/invoices" },
+          ],
     },
     {
       title: "Career",

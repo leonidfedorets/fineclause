@@ -40,12 +40,14 @@ const queryClient = new QueryClient();
 const mobileApp = isMobileApp();
 
 /**
- * Apple App Review (Guideline 3.1.1) does not allow business/agency account
- * registration or recruiter/employer flows in the mobile app — only the free
- * CV analysis stays. These routes redirect to the careers (CV analysis) page
- * when running inside the Capacitor native shell.
+ * Apple App Review (Guideline 3.1.1 / 3.1.3c) does not allow business/agency
+ * account registration, recruiter/employer flows, or paid "enterprise"
+ * business tools (Invoices, Expenses, Carbon, Tax, Templates) in the mobile
+ * app — only free contract scanning and CV analysis stay. These routes
+ * redirect to the contract scanner when running inside the Capacitor
+ * native shell.
  */
-const MobileBlockedRoute = () => <Navigate to="/careers" replace />;
+const MobileBlockedRoute = () => <Navigate to="/scan" replace />;
 
 /**
  * Scrolls to a hash anchor after route changes.
@@ -95,20 +97,23 @@ const App = () => (
               <Route path="/security" element={<SecurityPage />} />
               <Route path="/install" element={<InstallPage />} />
               <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
-              <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
+              <Route path="/templates" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
               <Route path="/cookies" element={<CookiesPage />} />
               <Route path="/careers" element={<CareersPage />} />
               <Route path="/employers" element={mobileApp ? <MobileBlockedRoute /> : <EmployersPage />} />
               <Route path="/recruiter" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><RecruiterDashboardPage /></ProtectedRoute>} />
               <Route path="/agency/signup" element={mobileApp ? <MobileBlockedRoute /> : <Navigate to="/signup?type=agency" replace />} />
-              <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
-              <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
-              <Route path="/carbon" element={<ProtectedRoute><CarbonFootprintPage /></ProtectedRoute>} />
-              <Route path="/tax" element={<ProtectedRoute><TaxEstimationPage /></ProtectedRoute>} />
+              <Route path="/invoices" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
+              <Route path="/expenses" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
+              <Route path="/carbon" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><CarbonFootprintPage /></ProtectedRoute>} />
+              <Route path="/tax" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><TaxEstimationPage /></ProtectedRoute>} />
               <Route path="/shared/:token" element={<SharedReportPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <CookieConsent />
+            {/* Cookie banner hidden in the mobile app — we do not set tracking
+                cookies or use the AppTrackingTransparency framework on iOS/
+                Android (Apple Guideline 5.1.2(i)) */}
+            {!mobileApp && <CookieConsent />}
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

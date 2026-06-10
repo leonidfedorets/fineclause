@@ -86,7 +86,9 @@ const Navbar = () => {
     <>
       <NavDropdown label={t("nav.groupDocScan")} icon={<FileSearch className="w-3.5 h-3.5" />} active={isDocScanActive}>
         <DropdownLink to="/scan" onClick={close} icon={<FileSearch className="w-3.5 h-3.5" />}>{t("nav.scan")}</DropdownLink>
-        <DropdownLink to="/templates" onClick={close} icon={<FileText className="w-3.5 h-3.5" />}>{t("nav.templates")}</DropdownLink>
+        {!isMobile && (
+          <DropdownLink to="/templates" onClick={close} icon={<FileText className="w-3.5 h-3.5" />}>{t("nav.templates")}</DropdownLink>
+        )}
         <DropdownLink to="/dashboard" onClick={close} icon={<Scale className="w-3.5 h-3.5" />}>{t("nav.scansAnalytics")}</DropdownLink>
       </NavDropdown>
 
@@ -97,12 +99,16 @@ const Navbar = () => {
         )}
       </NavDropdown>
 
-      <NavDropdown label={t("nav.groupBusiness")} icon={<FileText className="w-3.5 h-3.5" />} active={isBusinessActive}>
-        <DropdownLink to="/invoices" onClick={close}>{t("nav.invoices")}</DropdownLink>
-        <DropdownLink to="/expenses" onClick={close}>{t("nav.expenses")}</DropdownLink>
-        <DropdownLink to="/carbon" onClick={close}>{t("nav.carbon")}</DropdownLink>
-        <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
-      </NavDropdown>
+      {/* Business tools (Invoices, Expenses, Carbon, Tax) are paid "enterprise" services
+          sold via web subscription — not available in the mobile app (Apple 3.1.1/3.1.3c) */}
+      {!isMobile && (
+        <NavDropdown label={t("nav.groupBusiness")} icon={<FileText className="w-3.5 h-3.5" />} active={isBusinessActive}>
+          <DropdownLink to="/invoices" onClick={close}>{t("nav.invoices")}</DropdownLink>
+          <DropdownLink to="/expenses" onClick={close}>{t("nav.expenses")}</DropdownLink>
+          <DropdownLink to="/carbon" onClick={close}>{t("nav.carbon")}</DropdownLink>
+          <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
+        </NavDropdown>
+      )}
 
       {isAdmin && (
         <Link to="/admin" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -126,12 +132,14 @@ const Navbar = () => {
       <NavDropdown label={t("nav.groupCareer")} icon={<Briefcase className="w-3.5 h-3.5" />} active={location.pathname === "/careers"}>
         <DropdownLink to="/careers" onClick={close}>{t("nav.careers")}</DropdownLink>
       </NavDropdown>
-      <NavDropdown label={t("nav.groupBusiness")} icon={<FileText className="w-3.5 h-3.5" />} active={businessPaths.some(p => location.pathname.startsWith(p))}>
-        <DropdownLink to="/invoices" onClick={close}>{t("nav.invoices")}</DropdownLink>
-        <DropdownLink to="/expenses" onClick={close}>{t("nav.expenses")}</DropdownLink>
-        <DropdownLink to="/carbon" onClick={close}>{t("nav.carbon")}</DropdownLink>
-        <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
-      </NavDropdown>
+      {!isMobile && (
+        <NavDropdown label={t("nav.groupBusiness")} icon={<FileText className="w-3.5 h-3.5" />} active={businessPaths.some(p => location.pathname.startsWith(p))}>
+          <DropdownLink to="/invoices" onClick={close}>{t("nav.invoices")}</DropdownLink>
+          <DropdownLink to="/expenses" onClick={close}>{t("nav.expenses")}</DropdownLink>
+          <DropdownLink to="/carbon" onClick={close}>{t("nav.carbon")}</DropdownLink>
+          <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
+        </NavDropdown>
+      )}
       {!isMobile && (
         <a href="/#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
           {t("nav.pricing")}
@@ -193,7 +201,9 @@ const Navbar = () => {
         <div className="md:hidden bg-card border-t border-border px-6 pb-6 pt-4 flex flex-col gap-1 animate-fade-up" style={{ animationDuration: "0.2s" }}>
           <MobileSection label={t("nav.groupDocScan")} icon={<FileSearch className="w-4 h-4" />}>
             <Link to="/scan" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.scan")}</Link>
-            <Link to="/templates" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.templates")}</Link>
+            {!isMobile && (
+              <Link to="/templates" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.templates")}</Link>
+            )}
             <Link to="/dashboard" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.scansAnalytics")}</Link>
           </MobileSection>
           <MobileSection label={t("nav.groupCareer")} icon={<Briefcase className="w-4 h-4" />}>
@@ -202,12 +212,16 @@ const Navbar = () => {
               <Link to="/recruiter" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.recruiterDashboard")}</Link>
             )}
           </MobileSection>
-          <MobileSection label={t("nav.groupBusiness")} icon={<FileText className="w-4 h-4" />}>
-            <Link to="/invoices" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.invoices")}</Link>
-            <Link to="/expenses" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.expenses")}</Link>
-            <Link to="/carbon" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.carbon")}</Link>
-            <Link to="/tax" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.tax")}</Link>
-          </MobileSection>
+          {/* Business tools (Invoices, Expenses, Carbon, Tax) are paid "enterprise" services
+              sold via web subscription — not available in the mobile app (Apple 3.1.1/3.1.3c) */}
+          {!isMobile && (
+            <MobileSection label={t("nav.groupBusiness")} icon={<FileText className="w-4 h-4" />}>
+              <Link to="/invoices" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.invoices")}</Link>
+              <Link to="/expenses" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.expenses")}</Link>
+              <Link to="/carbon" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.carbon")}</Link>
+              <Link to="/tax" className="block py-2 pl-8 text-sm text-muted-foreground hover:text-foreground" onClick={close}>{t("nav.tax")}</Link>
+            </MobileSection>
+          )}
           {!user && (
             <div className="flex flex-col gap-2 pt-4 border-t border-border mt-2">
               <Link to="/login" className="text-sm font-medium text-center py-2.5 rounded-lg border border-border text-foreground hover:bg-muted transition-colors" onClick={close}>{t("nav.signIn")}</Link>

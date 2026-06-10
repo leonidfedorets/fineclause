@@ -3,15 +3,21 @@ import * as amplitude from "@amplitude/unified";
 import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
+import { isMobileApp } from "@/lib/isMobileApp";
 
-// Amplitude — analytics + session replay
-try {
-  amplitude.initAll("3af7afd09b2a4327412064abacd05263", {
-    analytics: { autocapture: true },
-    sessionReplay: { sampleRate: 1 },
-  });
-} catch (e) {
-  console.warn("[Analytics] Failed to initialise:", e);
+// Amplitude — analytics + session replay.
+// Disabled entirely in the mobile app: session replay records user activity
+// and would require an AppTrackingTransparency prompt under Apple Guideline
+// 5.1.2(i). The iOS/Android builds run with no analytics/tracking.
+if (!isMobileApp()) {
+  try {
+    amplitude.initAll("3af7afd09b2a4327412064abacd05263", {
+      analytics: { autocapture: true },
+      sessionReplay: { sampleRate: 1 },
+    });
+  } catch (e) {
+    console.warn("[Analytics] Failed to initialise:", e);
+  }
 }
 
 // Capacitor native init (no-op on web)
