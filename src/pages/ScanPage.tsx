@@ -293,7 +293,7 @@ const ScanPage = () => {
               </h1>
               <p className="text-muted-foreground">
                 {scanLimit === null
-                  ? t("scan.unlimitedScans", { plan: currentTier.name })
+                  ? (isMobile ? t("scan.unlimitedLabel") : t("scan.unlimitedScans", { plan: currentTier.name }))
                   : scansRemaining! > 0
                     ? t("scan.scansRemaining", { count: scansRemaining })
                     : t("scan.limitReached")}
@@ -304,8 +304,9 @@ const ScanPage = () => {
                     {scanLimit === null ? (
                       <>
                         <span className="inline-block w-2 h-2 rounded-full bg-accent" />
-                        <span className="font-medium text-foreground">{currentTier.name} {t("scan.plan")}</span>
-                        <span className="text-muted-foreground">· {t("scan.unlimitedLabel")}</span>
+                        {/* Plan/tier name hidden on mobile — no in-app subscription tiers (Apple 3.1.1) */}
+                        {!isMobile && <span className="font-medium text-foreground">{currentTier.name} {t("scan.plan")}</span>}
+                        <span className="text-muted-foreground">{!isMobile && "· "}{t("scan.unlimitedLabel")}</span>
                       </>
                     ) : (
                       <>

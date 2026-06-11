@@ -89,11 +89,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        // Mobile: immediately set as pro — all features unlocked
-        if (mobile) {
-          setIsPro(true);
-          setCurrentTierKey("pro");
-        } else {
+        // Mobile: stay on the "Free" tier (no IAP, no paid plans in-app —
+        // Apple Guideline 3.1.1). Unlimited scans are granted separately
+        // in ScanPage regardless of tier.
+        if (!mobile) {
           setTimeout(() => { checkSubscription(); }, 0);
         }
         checkRole(session.user.id);
@@ -109,10 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        if (mobile) {
-          setIsPro(true);
-          setCurrentTierKey("pro");
-        } else {
+        if (!mobile) {
           checkSubscription();
         }
         checkRole(session.user.id);
