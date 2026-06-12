@@ -111,7 +111,10 @@ const SignupPage = () => {
     }
   };
 
-  const features = [t("auth.proFeature1"), t("auth.proFeature2"), t("auth.proFeature3"), t("auth.proFeature4")];
+  // Mobile signup is free — no "Pro"/subscription pricing references (Apple 3.1.1)
+  const features = mobile
+    ? ["Unlimited contract scans", "AI-powered analysis", "Hidden fee detection", "Scan history & exports"]
+    : [t("auth.proFeature1"), t("auth.proFeature2"), t("auth.proFeature3"), t("auth.proFeature4")];
   const agencyFeatures = ["Full recruitment platform", "HubSpot CRM integration", "Unlimited job listings", "Candidate matching & analytics"];
 
   return (
@@ -144,8 +147,12 @@ const SignupPage = () => {
             {tab === "personal" ? (
               <>
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold font-display text-foreground">{t("auth.getPro")}</h1>
-                  <p className="text-muted-foreground text-sm mt-2">{t("auth.proSubtitle")}</p>
+                  <h1 className="text-2xl font-bold font-display text-foreground">
+                    {mobile ? "Create your free account" : t("auth.getPro")}
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-2">
+                    {mobile ? "Scan unlimited contracts and CVs for free" : t("auth.proSubtitle")}
+                  </p>
                 </div>
 
                 <div className="space-y-3 mb-6">
