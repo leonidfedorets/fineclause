@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const PrivacyPage = () => {
+  const mobile = isMobileApp();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -35,8 +37,12 @@ const PrivacyPage = () => {
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Account information:</strong> When you create an account, we collect your email address, name, and password.</span></li>
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Document data:</strong> When you upload documents for analysis, we process the text content to provide risk analysis. Documents are encrypted at rest and in transit.</span></li>
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Usage data:</strong> We collect information about how you interact with FineClause, including pages visited, features used, and time spent on the platform.</span></li>
-                <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Device information:</strong> Browser type, operating system, IP address, and device identifiers for security and analytics purposes.</span></li>
-                <li className="flex items-start gap-2.5"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Payment information:</strong> Billing details are collected and processed by our payment provider (Stripe) and are never stored on our servers.</span></li>
+                <li className={`flex items-start gap-2.5 ${mobile ? "" : "border-b border-border pb-2"}`}><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Device information:</strong> Browser type, operating system, IP address, and device identifiers for security and analytics purposes.</span></li>
+                {/* Payment information bullet hidden on mobile — the iOS/Android
+                    app has no payments or billing (Apple 3.1.1) */}
+                {!mobile && (
+                  <li className="flex items-start gap-2.5"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Payment information:</strong> Billing details are collected and processed by our payment provider (Stripe) and are never stored on our servers.</span></li>
+                )}
               </ul>
             </section>
 
@@ -96,12 +102,16 @@ const PrivacyPage = () => {
               <p className="mt-3">To exercise any of these rights, please contact us at <a href="mailto:privacy@empatixtech.com" className="text-accent hover:underline">privacy@empatixtech.com</a>.</p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-bold font-display mb-3">Cookies</h2>
-              <p>
-                FineClause uses essential cookies required for the service to function (authentication, session management). We use analytics cookies only with your consent to understand how you use our service and improve it. You can manage cookie preferences through your browser settings.
-              </p>
-            </section>
+            {/* Cookies section hidden on mobile — the iOS/Android app sets no
+                cookies and has no tracking (Apple 5.1.2i) */}
+            {!mobile && (
+              <section>
+                <h2 className="text-xl font-bold font-display mb-3">Cookies</h2>
+                <p>
+                  FineClause uses essential cookies required for the service to function (authentication, session management). We use analytics cookies only with your consent to understand how you use our service and improve it. You can manage cookie preferences through your browser settings.
+                </p>
+              </section>
+            )}
 
             <section className="border-t border-border pt-8">
               <h2 className="text-xl font-bold font-display mb-3">Contact</h2>

@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const TermsPage = () => {
+  const mobile = isMobileApp();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -61,12 +63,16 @@ const TermsPage = () => {
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-bold font-display mb-3">Subscriptions & Payments</h2>
-              <p>
-                FineClause offers free and paid subscription tiers. Paid subscriptions are billed monthly. You may cancel at any time; cancellation takes effect at the end of the current billing period. Refunds are not provided for partial billing periods. Prices may change with 30 days' prior notice.
-              </p>
-            </section>
+            {/* Subscriptions & Payments section hidden on mobile — the iOS/Android
+                app is free with no paid tiers or in-app purchases (Apple 3.1.1) */}
+            {!mobile && (
+              <section>
+                <h2 className="text-xl font-bold font-display mb-3">Subscriptions & Payments</h2>
+                <p>
+                  FineClause offers free and paid subscription tiers. Paid subscriptions are billed monthly. You may cancel at any time; cancellation takes effect at the end of the current billing period. Refunds are not provided for partial billing periods. Prices may change with 30 days' prior notice.
+                </p>
+              </section>
+            )}
 
             <section>
               <h2 className="text-xl font-bold font-display mb-3">Disclaimer of Warranties</h2>
