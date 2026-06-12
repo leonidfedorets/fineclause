@@ -98,7 +98,7 @@ const App = () => (
               <Route path="/install" element={<InstallPage />} />
               <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
               <Route path="/templates" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
-              <Route path="/cookies" element={<CookiesPage />} />
+              <Route path="/cookies" element={mobileApp ? <MobileBlockedRoute /> : <CookiesPage />} />
               <Route path="/careers" element={<CareersPage />} />
               <Route path="/employers" element={mobileApp ? <MobileBlockedRoute /> : <EmployersPage />} />
               <Route path="/recruiter" element={mobileApp ? <MobileBlockedRoute /> : <ProtectedRoute><RecruiterDashboardPage /></ProtectedRoute>} />

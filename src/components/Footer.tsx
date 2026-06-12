@@ -37,13 +37,21 @@ const Footer = () => {
     },
     {
       title: "Company",
-      links: [
-        { label: t("footer.privacy"), to: "/privacy" },
-        { label: t("footer.terms"), to: "/terms" },
-        { label: t("footer.cookies"), to: "/cookies" },
-        { label: t("footer.security"), to: "/security" },
-        { label: t("footer.contact"), to: "/contact" },
-      ],
+      // Cookies page hidden on mobile — the app doesn't use cookies (Apple 5.1.2i)
+      links: mobile
+        ? [
+            { label: t("footer.privacy"), to: "/privacy" },
+            { label: t("footer.terms"), to: "/terms" },
+            { label: t("footer.security"), to: "/security" },
+            { label: t("footer.contact"), to: "/contact" },
+          ]
+        : [
+            { label: t("footer.privacy"), to: "/privacy" },
+            { label: t("footer.terms"), to: "/terms" },
+            { label: t("footer.cookies"), to: "/cookies" },
+            { label: t("footer.security"), to: "/security" },
+            { label: t("footer.contact"), to: "/contact" },
+          ],
     },
   ];
 
