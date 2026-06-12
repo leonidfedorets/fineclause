@@ -50,13 +50,18 @@ const mobileApp = isMobileApp();
 const MobileBlockedRoute = () => <Navigate to="/scan" replace />;
 
 /**
- * Scrolls to a hash anchor after route changes.
+ * Scrolls to a hash anchor after route changes, or back to the top of the
+ * page when navigating to a route with no hash (e.g. clicking a footer
+ * link while scrolled down on another page).
  * Handles navigate("/#pricing") → scrolls to <section id="pricing">
  */
 const HashScrollHandler = () => {
   const { hash, pathname } = useLocation();
   useEffect(() => {
-    if (!hash) return;
+    if (!hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      return;
+    }
     // Small delay lets the page render before scrolling
     const id = hash.replace("#", "");
     const el = document.getElementById(id);
