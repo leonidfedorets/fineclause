@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const faqs = [
   {
@@ -23,11 +24,6 @@ const faqs = [
       "Absolutely. Documents are encrypted in transit and at rest. We never use your documents to train our models, and you can delete your data at any time. We're SOC 2 compliant and GDPR-ready.",
   },
   {
-    question: "Can I cancel my Pro subscription anytime?",
-    answer:
-      "Yes — no lock-in, no cancellation fees (we'd catch those in our own contract). Cancel anytime from your dashboard, and you'll keep access until the end of your billing period.",
-  },
-  {
     question: "Does FineClause replace a lawyer?",
     answer:
       "FineClause is designed to help you understand contracts faster and flag potential issues before you sign. For complex negotiations or high-value deals, we always recommend consulting a qualified attorney. Think of us as your first line of defense.",
@@ -39,7 +35,15 @@ const faqs = [
   },
 ];
 
+// "Pro subscription" FAQ is web-only — the mobile app has no subscriptions (Apple 3.1.1)
+const proSubscriptionFaq = {
+  question: "Can I cancel my Pro subscription anytime?",
+  answer:
+    "Yes — no lock-in, no cancellation fees (we'd catch those in our own contract). Cancel anytime from your dashboard, and you'll keep access until the end of your billing period.",
+};
+
 const FAQSection = () => {
+  const items = isMobileApp() ? faqs : [...faqs.slice(0, 3), proSubscriptionFaq, ...faqs.slice(3)];
   return (
     <section className="py-24 px-6 md:px-16 border-b border-border">
       <motion.p
@@ -62,7 +66,7 @@ const FAQSection = () => {
       </motion.h2>
 
       <Accordion type="single" collapsible className="max-w-[700px]">
-        {faqs.map((faq, idx) => (
+        {items.map((faq, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 20 }}

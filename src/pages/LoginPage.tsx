@@ -11,11 +11,13 @@ import { useTranslation } from "react-i18next";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useAuth } from "@/contexts/AuthContext";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const LoginPage = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("type") === "agency" ? "agency" : "personal";
+  // Agency tab is never available on mobile (Apple 3.1.1: no business/agency account flows)
+  const initialTab = !isMobileApp() && searchParams.get("type") === "agency" ? "agency" : "personal";
   const [tab, setTab] = useState<"personal" | "agency">(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
