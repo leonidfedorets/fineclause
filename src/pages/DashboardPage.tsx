@@ -2,16 +2,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { FileText, AlertTriangle, CheckCircle, XCircle, LogOut, Clock, ChevronLeft, Trash2, CreditCard, Crown, Shield, ArrowLeftRight, Settings, Share2 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import confetti from "canvas-confetti";
+import { FileText, AlertTriangle, CheckCircle, XCircle, LogOut, Clock, ChevronLeft, Trash2, Shield, ArrowLeftRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import DashboardAnalytics from "@/components/DashboardAnalytics";
 import ScanFilters from "@/components/ScanFilters";
-import SubscriptionDialog from "@/components/SubscriptionDialog";
 import { toast } from "sonner";
 import ShareReportButton from "@/components/ShareReportButton";
-import { getTierByKey } from "@/lib/subscriptionTiers";
 import type { Json } from "@/integrations/supabase/types";
 import { useTranslation } from "react-i18next";
 import PasskeyManager from "@/components/PasskeyManager";
@@ -47,67 +44,11 @@ const riskLabel: Record<string, string> = {
 
 const DashboardPage = () => {
   const { t } = useTranslation();
-  const { user, signOut, isPro, isAdmin, subscriptionEnd, currentTierKey, isMobile } = useAuth();
+  const { user, signOut, isAdmin, isMobile } = useAuth();
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState<ScanRecord | null>(null);
-  const [managingPortal, setManagingPortal] = useState(false);
-  const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const currentTier = getTierByKey(currentTierKey);
-
-  useEffect(() => {
-    if (searchParams.get("checkout") === "success") {
-      setSearchParams({}, { replace: true });
-      toast.success("Welcome to your new plan! 🎉", {
-        description: "Your subscription is now active.",
-        duration: 5000,
-      });
-      const end = Date.now() + 1500;
-      const fire = () => {
-        confetti({
-          particleCount: 80,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.7 },
-          colors: ["#ff6b6b", "#feca57", "#48dbfb", "#ff9ff3", "#54a0ff"],
-        });
-        confetti({
-          particleCount: 80,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.7 },
-          colors: ["#ff6b6b", "#feca57", "#48dbfb", "#ff9ff3", "#54a0ff"],
-        });
-        if (Date.now() < end) requestAnimationFrame(fire);
-      };
-      fire();
-    }
-  }, [searchParams, setSearchParams]);
-
-  const handleManageSubscription = async () => {
-    setManagingPortal(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-      if (error) throw error;
-      if (data?.error) {
-        if (data.error.includes("No Stripe customer")) {
-          toast.info("Your Pro plan was activated manually — no Stripe subscription to manage.");
-        } else {
-          toast.error(data.error);
-        }
-        return;
-      }
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
-    } catch (e) {
-      toast.error(t("common.error"));
-    } finally {
-      setManagingPortal(false);
-    }
-  };
 
   useEffect(() => {
     if (!user) return;
@@ -276,22 +217,6 @@ const DashboardPage = () => {
                 {user?.email}
               </p>
 
-              {/* Plan badge — only on web (mobile has no plans) */}
-              {!isMobile && (
-                <div className="mb-4">
-                  {currentTierKey !== "free" ? (
-                    <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 rounded-full px-3 py-1.5">
-                      <Crown className="w-3.5 h-3.5 text-accent flex-shrink-0" />
-                      <span className="text-sm font-semibold text-accent">{currentTier.name} {t("scan.plan")}</span>
-                    </div>
-                  ) : (
-                    <div className="inline-flex items-center gap-2 bg-secondary rounded-full px-3 py-1.5">
-                      <span className="text-sm font-medium text-muted-foreground">{t("dashboard.freePlan")}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Primary actions — 2-column grid on mobile */}
               <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
                 <Button variant="hero" onClick={() => navigate("/scan")} className="w-full sm:w-auto gap-1.5">
@@ -302,20 +227,6 @@ const DashboardPage = () => {
                   <ArrowLeftRight className="w-4 h-4 flex-shrink-0" />
                   {t("dashboard.compare")}
                 </Button>
-
-                {/* Web-only: billing & plan management */}
-                {!isMobile && isPro && subscriptionEnd && (
-                  <Button variant="outline" onClick={handleManageSubscription} disabled={managingPortal} className="w-full sm:w-auto gap-1.5">
-                    <CreditCard className="w-4 h-4 flex-shrink-0" />
-                    {managingPortal ? t("common.loading") : t("dashboard.billing")}
-                  </Button>
-                )}
-                {!isMobile && (
-                  <Button variant="outline" onClick={() => setSubscriptionDialogOpen(true)} className="w-full sm:w-auto gap-1.5">
-                    <Settings className="w-4 h-4 flex-shrink-0" />
-                    {currentTierKey === "free" ? t("dashboard.upgrade") : t("dashboard.changePlan")}
-                  </Button>
-                )}
               </div>
             </div>
 
@@ -400,12 +311,6 @@ const DashboardPage = () => {
           </>
         )}
       </div>
-      <SubscriptionDialog
-        open={subscriptionDialogOpen}
-        onOpenChange={setSubscriptionDialogOpen}
-        currentTierKey={currentTierKey}
-      />
-
       {/* Security / Passkeys — hidden on mobile (WebAuthn not supported in WebView) */}
       {!isMobile && (
         <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">

@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import WhatWeCatchSection from "@/components/WhatWeCatchSection";
-import PricingSection from "@/components/PricingSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
@@ -29,9 +28,6 @@ const Index = () => {
         <HowItWorksSection />
         <FeaturesSection />
         <WhatWeCatchSection />
-
-        {/* Pricing — hidden on mobile app (no subscriptions in mobile) */}
-        {!mobile && <PricingSection />}
 
         <TestimonialsSection />
         <FAQSection />

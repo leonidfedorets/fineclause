@@ -9,6 +9,7 @@ export default {
       pricing: "Cenas",
       signIn: "Ieiet",
       tryFree: "Izmēģināt bezmaksas",
+      getStarted: "Get started",
       theme: "Tēma",
       careers: "Karjeras",
       employers: "Darba devēji",

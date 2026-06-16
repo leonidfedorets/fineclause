@@ -112,9 +112,7 @@ const SignupPage = () => {
   };
 
   // Mobile signup is free — no "Pro"/subscription pricing references (Apple 3.1.1)
-  const features = mobile
-    ? ["Unlimited contract scans", "AI-powered analysis", "Hidden fee detection", "Scan history & exports"]
-    : [t("auth.proFeature1"), t("auth.proFeature2"), t("auth.proFeature3"), t("auth.proFeature4")];
+  const features = ["Unlimited contract scans", "AI-powered analysis", "Hidden fee detection", "Scan history & exports"];
   const agencyFeatures = ["Full recruitment platform", "HubSpot CRM integration", "Unlimited job listings", "Candidate matching & analytics"];
 
   return (
@@ -148,10 +146,10 @@ const SignupPage = () => {
               <>
                 <div className="text-center mb-6">
                   <h1 className="text-2xl font-bold font-display text-foreground">
-                    {mobile ? "Create your free account" : t("auth.getPro")}
+                    Create your free account
                   </h1>
                   <p className="text-muted-foreground text-sm mt-2">
-                    {mobile ? "Scan unlimited contracts and CVs for free" : t("auth.proSubtitle")}
+                    Scan unlimited contracts and CVs for free
                   </p>
                 </div>
 

@@ -9,6 +9,7 @@ export default {
       pricing: "Ціни",
       signIn: "Увійти",
       tryFree: "Спробувати безкоштовно",
+      getStarted: "Get started",
       theme: "Тема",
       careers: "Кар'єра",
       employers: "Роботодавці",

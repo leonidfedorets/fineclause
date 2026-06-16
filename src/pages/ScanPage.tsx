@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { Upload, FileText, Loader2, AlertTriangle, CheckCircle, XCircle, Search, ArrowLeft, Lock, Type, Lightbulb, Copy, Check, Download, CalendarClock } from "lucide-react";
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { useState, useCallback, useEffect } from "react";
+import { Upload, FileText, Loader2, AlertTriangle, CheckCircle, XCircle, Search, ArrowLeft, Type, Lightbulb, Copy, Check, Download, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "react-router-dom";
@@ -8,10 +7,10 @@ import Navbar from "@/components/Navbar";
 import OnboardingTour from "@/components/OnboardingTour";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTierByKey, getTierIndex, TIERS } from "@/lib/subscriptionTiers";
 import { toast } from "sonner";
 import { generateScanReport } from "@/lib/generateScanReport";
 import { useTranslation } from "react-i18next";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 interface RiskClause {
   title: string;
@@ -84,62 +83,16 @@ const CopyButton = ({ text }: { text: string }) => {
 
 const ScanPage = () => {
   const { t } = useTranslation();
-  const { user, isPro, checkSubscription, currentTierKey, isMobile } = useAuth();
+  const { user, isMobile } = useAuth();
+  const mobile = isMobileApp();
   const [file, setFile] = useState<File | null>(null);
   const [pastedText, setPastedText] = useState("");
   const [inputMode, setInputMode] = useState<"file" | "text">("file");
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [freeScansUsed, setFreeScansUsed] = useState(0);
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [barAnimated, setBarAnimated] = useState(false);
 
-  const currentTier = getTierByKey(currentTierKey);
-  // Mobile + authenticated = unlimited scans, no paywall
-  const scanLimit = (isMobile && user) ? null : currentTier.scansPerMonth;
-  const canScan = scanLimit === null || freeScansUsed < scanLimit;
   const hasInput = inputMode === "file" ? !!file : pastedText.trim().length > 0;
-  const scansRemaining = scanLimit !== null ? Math.max(0, scanLimit - freeScansUsed) : null;
-
-  const nextResetDate = useMemo(() => {
-    const now = new Date();
-    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    return next.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  }, []);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) {
-        setProfileLoading(false);
-        return;
-      }
-      const { data } = await supabase
-        .from("profiles")
-        .select("free_scans_used, is_pro")
-        .eq("user_id", user.id)
-        .single();
-      if (data) {
-        setFreeScansUsed(data.free_scans_used);
-      }
-      setProfileLoading(false);
-    };
-    fetchProfile();
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      checkSubscription();
-    }
-  }, [user, checkSubscription]);
-
-  useEffect(() => {
-    if (!profileLoading) {
-      const timer = setTimeout(() => setBarAnimated(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [profileLoading]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -151,40 +104,23 @@ const ScanPage = () => {
     }
   }, []);
 
-  const handleUpgrade = async () => {
-    if (!user) {
-      window.location.href = "/signup";
-      return;
-    }
-    const currentIndex = getTierIndex(currentTierKey);
-    const nextTier = TIERS[Math.min(currentIndex + 1, TIERS.length - 1)];
-    if (!nextTier.priceId) return;
-
-    setCheckoutLoading(true);
+  const handleNativeShare = async () => {
+    if (!results) return;
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: nextTier.priceId },
+      const { Share } = await import("@capacitor/share");
+      const lines = results.clauses.map(c => `[${c.risk.toUpperCase()}] ${c.title}: ${c.explanation}`).join("\n\n");
+      await Share.share({
+        title: "FineClause Contract Scan",
+        text: `Document: ${results.documentType}\n\nSummary: ${results.summary}\n\n${lines}`,
+        dialogTitle: "Share Scan Report",
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
-    } catch (err) {
-      console.error("Checkout error:", err);
+    } catch {
       toast.error(t("common.error"));
-    } finally {
-      setCheckoutLoading(false);
     }
   };
 
   const handleScan = async () => {
     if (!hasInput) return;
-
-    if (user && !canScan) {
-      toast.error(t("scan.scanLimitDesc", { limit: scanLimit, plan: currentTier.name }));
-      return;
-    }
-
     setScanning(true);
 
     try {
@@ -253,11 +189,12 @@ const ScanPage = () => {
           clauses: analysisResult.clauses as any,
         });
 
-        if (scanLimit !== null) {
-          const { data: scanData } = await supabase.functions.invoke("increment-scans");
-          if (scanData?.free_scans_used != null) {
-            setFreeScansUsed(scanData.free_scans_used);
-          }
+        // Haptic feedback on native mobile after successful scan
+        if (mobile) {
+          try {
+            const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+            await Haptics.impact({ style: ImpactStyle.Medium });
+          } catch { /* non-fatal */ }
         }
       }
     } catch (err) {
@@ -291,88 +228,8 @@ const ScanPage = () => {
               <h1 className="text-3xl md:text-4xl font-bold font-display text-foreground mb-3">
                 {t("scan.title")}
               </h1>
-              <p className="text-muted-foreground">
-                {scanLimit === null
-                  ? (isMobile ? t("scan.unlimitedLabel") : t("scan.unlimitedScans", { plan: currentTier.name }))
-                  : scansRemaining! > 0
-                    ? t("scan.scansRemaining", { count: scansRemaining })
-                    : t("scan.limitReached")}
-              </p>
-              {user && !profileLoading && (
-                <>
-                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm">
-                    {scanLimit === null ? (
-                      <>
-                        <span className="inline-block w-2 h-2 rounded-full bg-accent" />
-                        {/* Plan/tier name hidden on mobile — no in-app subscription tiers (Apple 3.1.1) */}
-                        {!isMobile && <span className="font-medium text-foreground">{currentTier.name} {t("scan.plan")}</span>}
-                        <span className="text-muted-foreground">{!isMobile && "· "}{t("scan.unlimitedLabel")}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className={`inline-block w-2 h-2 rounded-full ${canScan ? "bg-risk-safe" : "bg-risk-danger"}`} />
-                        <span className="font-medium text-foreground">{currentTier.name} {t("scan.plan")}</span>
-                        <span className="text-muted-foreground">
-                          · {scansRemaining! > 0
-                            ? t("scan.scansLeft", { remaining: scansRemaining, total: scanLimit })
-                            : t("scan.noScansRemaining")}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  {scanLimit !== null && (
-                    <>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="mt-3 w-full max-w-xs mx-auto cursor-default">
-                              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                                <div
-                                  className="h-full rounded-full transition-all duration-1000 ease-out"
-                                  style={{
-                                    width: barAnimated
-                                      ? `${Math.min(100, (freeScansUsed / scanLimit) * 100)}%`
-                                      : "0%",
-                                    backgroundColor: canScan
-                                      ? `hsl(var(--risk-safe))`
-                                      : `hsl(var(--risk-danger))`,
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{freeScansUsed} / {scanLimit} {t("scan.used", { defaultValue: "scans used" })} — {scansRemaining} {t("scan.remaining", { defaultValue: "remaining" })}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                        <div className="flex justify-between mt-1 text-[11px] text-muted-foreground">
-                          <span>{freeScansUsed} / {scanLimit} {t("scan.used", { defaultValue: "used" })}</span>
-                          <span>{scansRemaining} {t("scan.remaining", { defaultValue: "remaining" })}</span>
-                        </div>
-                      <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-                        <CalendarClock className="w-3.5 h-3.5" />
-                        <span>{t("scan.scansReset", { date: nextResetDate })}</span>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
+              <p className="text-muted-foreground">{t("scan.unlimitedLabel")}</p>
             </div>
-
-            {/* Upgrade wall — hidden on mobile (all auth users have full access) */}
-            {user && !canScan && !profileLoading && !isMobile && (
-              <div className="rounded-2xl bg-card border border-accent/30 p-8 text-center mb-8" style={{ boxShadow: "var(--shadow-card)" }}>
-                <Lock className="w-10 h-10 text-accent mx-auto mb-4" />
-                <h2 className="text-xl font-bold font-display text-foreground mb-2">{t("scan.scanLimitTitle")}</h2>
-                <p className="text-muted-foreground mb-6">
-                  {t("scan.scanLimitDesc", { limit: scanLimit, plan: currentTier.name })}
-                </p>
-                <Button variant="hero" size="lg" className="py-6 px-10 text-base" onClick={handleUpgrade} disabled={checkoutLoading}>
-                  {checkoutLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> {t("common.loading")}</> : t("scan.upgradePlan")}
-                </Button>
-              </div>
-            )}
 
             <div id="tour-input-toggle" className="flex gap-2 mb-4">
               <Button
@@ -569,24 +426,26 @@ const ScanPage = () => {
               <Button variant="outline" size="lg" onClick={() => { setResults(null); setFile(null); setPastedText(""); }}>
                 {t("scan.scanAnother")}
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="gap-2"
-                onClick={() => {
-                  if (results) {
-                    generateScanReport(results);
-                    toast.success(t("common.success"));
-                  }
-                }}
-              >
-                <Download className="w-4 h-4" />
-                {t("scan.downloadReport")}
-              </Button>
-              {/* Upgrade CTA hidden on mobile — no in-app subscriptions (Apple 3.1.1) */}
-              {!isPro && !isMobile && (
-                <Button variant="hero" size="lg" onClick={handleUpgrade} disabled={checkoutLoading}>
-                  {checkoutLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> {t("common.loading")}</> : t("scan.unlockUnlimited")}
+              {/* Native share sheet on mobile (Apple 4.2 native functionality) */}
+              {mobile ? (
+                <Button variant="outline" size="lg" className="gap-2" onClick={handleNativeShare}>
+                  <Share2 className="w-4 h-4" />
+                  Share Report
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                  onClick={() => {
+                    if (results) {
+                      generateScanReport(results);
+                      toast.success(t("common.success"));
+                    }
+                  }}
+                >
+                  <Download className="w-4 h-4" />
+                  {t("scan.downloadReport")}
                 </Button>
               )}
             </div>

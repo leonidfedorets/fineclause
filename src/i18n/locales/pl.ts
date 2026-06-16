@@ -9,6 +9,7 @@ export default {
       pricing: "Cennik",
       signIn: "Zaloguj",
       tryFree: "Wypróbuj za darmo",
+      getStarted: "Get started",
       theme: "Motyw",
       careers: "Kariera",
       employers: "Pracodawcy",

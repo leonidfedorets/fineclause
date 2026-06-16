@@ -9,6 +9,7 @@ export default {
       pricing: "Preise",
       signIn: "Anmelden",
       tryFree: "Kostenlos testen",
+      getStarted: "Get started",
       theme: "Design",
       careers: "Karriere",
       employers: "Arbeitgeber",

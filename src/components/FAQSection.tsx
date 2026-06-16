@@ -43,7 +43,8 @@ const proSubscriptionFaq = {
 };
 
 const FAQSection = () => {
-  const items = isMobileApp() ? faqs : [...faqs.slice(0, 3), proSubscriptionFaq, ...faqs.slice(3)];
+  // Pro subscription FAQ removed everywhere — the app is now fully free (Apple 3.1.1)
+  const items = faqs;
   return (
     <section className="py-24 px-6 md:px-16 border-b border-border">
       <motion.p

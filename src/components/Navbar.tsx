@@ -140,21 +140,15 @@ const Navbar = () => {
           <DropdownLink to="/tax" onClick={close}>{t("nav.tax")}</DropdownLink>
         </NavDropdown>
       )}
-      {!isMobile && (
-        <a href="/#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-          {t("nav.pricing")}
-        </a>
-      )}
       <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
         {t("nav.signIn")}
       </Link>
-      {/* Hide "Try Free" on mobile — user already has the app */}
       {!isMobile && (
         <Link
           to="/signup"
           className="text-sm font-semibold bg-accent text-accent-foreground px-5 py-2 rounded-lg hover:bg-accent/90 transition-all hover:shadow-[0_4px_16px_hsl(221_83%_53%/0.35)] active:scale-[0.98]"
         >
-          {t("nav.tryFree")}
+          {t("nav.getStarted")}
         </Link>
       )}
     </>
@@ -227,7 +221,7 @@ const Navbar = () => {
               <Link to="/login" className="text-sm font-medium text-center py-2.5 rounded-lg border border-border text-foreground hover:bg-muted transition-colors" onClick={close}>{t("nav.signIn")}</Link>
               {/* "Try for free" hidden in the mobile app — everything in the app is already free */}
               {!isMobile && (
-                <Link to="/signup" className="text-sm font-semibold text-center py-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors" onClick={close}>{t("nav.tryFree")}</Link>
+                <Link to="/signup" className="text-sm font-semibold text-center py-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors" onClick={close}>{t("nav.getStarted")}</Link>
               )}
             </div>
           )}

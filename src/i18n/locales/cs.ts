@@ -9,6 +9,7 @@ export default {
       pricing: "Ceník",
       signIn: "Přihlásit se",
       tryFree: "Vyzkoušet zdarma",
+      getStarted: "Get started",
       theme: "Motiv",
       careers: "Kariéra",
       employers: "Zaměstnavatelé",

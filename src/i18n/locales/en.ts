@@ -10,6 +10,7 @@ export default {
       pricing: "Pricing",
       signIn: "Sign In",
       tryFree: "Try for free",
+      getStarted: "Get started",
       theme: "Theme",
       careers: "Careers",
       employers: "Employers",
