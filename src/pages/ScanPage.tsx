@@ -122,12 +122,34 @@ const ScanPage = () => {
   const handleCameraCapture = async () => {
     try {
       const { Camera: Cap, CameraResultType, CameraSource } = await import("@capacitor/camera");
+
+      // Check permission status before opening the camera
+      const perms = await Cap.checkPermissions();
+
+      if (perms.camera === "denied") {
+        // User previously denied — open iOS Settings directly to this app
+        toast.error("Camera access is blocked. Allow it in Settings to scan documents.", {
+          action: {
+            label: "Open Settings",
+            onClick: () => window.open("app-settings:", "_system"),
+          },
+          duration: 6000,
+        });
+        return;
+      }
+
+      if (perms.camera === "prompt" || perms.camera === "prompt-with-rationale") {
+        const requested = await Cap.requestPermissions({ permissions: ["camera"] });
+        if (requested.camera !== "granted") return;
+      }
+
       const photo = await Cap.getPhoto({
         resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
         quality: 85,
         allowEditing: false,
       });
+
       if (photo.base64String) {
         // Convert base64 → Uint8Array → Blob without fetch() (blocked in WKWebView)
         const binary = atob(photo.base64String);
@@ -140,7 +162,13 @@ const ScanPage = () => {
       }
     } catch (err: any) {
       if (err?.message !== "User cancelled photos app") {
-        toast.error("Could not access camera. Check camera permissions in Settings.");
+        toast.error("Could not open camera. Check camera permissions in Settings.", {
+          action: {
+            label: "Open Settings",
+            onClick: () => window.open("app-settings:", "_system"),
+          },
+          duration: 6000,
+        });
       }
     }
   };
