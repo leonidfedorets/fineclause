@@ -123,24 +123,15 @@ const ScanPage = () => {
     try {
       const { Camera: Cap, CameraResultType, CameraSource } = await import("@capacitor/camera");
 
-      // Check permission status before opening the camera
-      const perms = await Cap.checkPermissions();
-
-      if (perms.camera === "denied") {
-        // User previously denied — open iOS Settings directly to this app
-        toast.error("Camera access is blocked. Allow it in Settings to scan documents.", {
-          action: {
-            label: "Open Settings",
-            onClick: () => window.open("app-settings:", "_system"),
-          },
-          duration: 6000,
+      // requestPermissions: shows system dialog on first use, returns current
+      // state immediately if already granted or permanently denied
+      const { camera } = await Cap.requestPermissions({ permissions: ["camera"] });
+      if (camera !== "granted") {
+        toast.error("Camera access is required to scan documents.", {
+          action: { label: "Open Settings", onClick: () => window.open("app-settings:", "_system") },
+          duration: 8000,
         });
         return;
-      }
-
-      if (perms.camera === "prompt" || perms.camera === "prompt-with-rationale") {
-        const requested = await Cap.requestPermissions({ permissions: ["camera"] });
-        if (requested.camera !== "granted") return;
       }
 
       const photo = await Cap.getPhoto({
@@ -148,6 +139,7 @@ const ScanPage = () => {
         source: CameraSource.Camera,
         quality: 85,
         allowEditing: false,
+        saveToGallery: false,
       });
 
       if (photo.base64String) {
@@ -161,15 +153,14 @@ const ScanPage = () => {
         setInputMode("file");
       }
     } catch (err: any) {
-      if (err?.message !== "User cancelled photos app") {
-        toast.error("Could not open camera. Check camera permissions in Settings.", {
-          action: {
-            label: "Open Settings",
-            onClick: () => window.open("app-settings:", "_system"),
-          },
-          duration: 6000,
-        });
-      }
+      const msg: string = err?.message ?? "";
+      // User tapped Cancel — silent
+      if (/cancel|dismiss/i.test(msg)) return;
+      // Any other failure — show settings link in case it's permission-related
+      toast.error("Could not open camera. Please try again.", {
+        action: { label: "Open Settings", onClick: () => window.open("app-settings:", "_system") },
+        duration: 8000,
+      });
     }
   };
 
@@ -253,13 +244,13 @@ const ScanPage = () => {
             const { LocalNotifications } = await import("@capacitor/local-notifications");
             const perm = await LocalNotifications.requestPermissions();
             if (perm.display === "granted") {
+              // id must be a 32-bit integer — use seconds mod 2^31
               await LocalNotifications.schedule({
                 notifications: [{
-                  id: Date.now(),
+                  id: Math.floor(Date.now() / 1000) % 2147483647,
                   title: "FineClause",
                   body: "Your scan is ready — tap to review your contract analysis.",
                   schedule: { at: new Date(Date.now() + 3000) },
-                  smallIcon: "ic_stat_icon_config_sample",
                 }],
               });
             }
