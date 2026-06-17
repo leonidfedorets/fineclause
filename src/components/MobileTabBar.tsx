@@ -34,6 +34,8 @@ const MobileTabBar = () => {
             <button
               key={to}
               onClick={() => { fireHaptic(); navigate(to); }}
+              aria-label={label}
+              aria-current={active ? "page" : undefined}
               className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors"
               style={{ WebkitTapHighlightColor: "transparent", background: "none", border: "none" }}
             >

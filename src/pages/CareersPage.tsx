@@ -484,7 +484,8 @@ const CareersPage = () => {
           </div>
         </section>
 
-        <Footer />
+        {/* Footer hidden on mobile — tab bar handles navigation (Guideline 4.2) */}
+        {!mobile && <Footer />}
       </div>
     </div>
   );

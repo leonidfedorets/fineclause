@@ -37,7 +37,7 @@ const PrivacyPage = () => {
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Account information:</strong> When you create an account, we collect your email address, name, and password.</span></li>
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Document data:</strong> When you upload documents for analysis, we process the text content to provide risk analysis. Documents are encrypted at rest and in transit.</span></li>
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Usage data:</strong> We collect information about how you interact with FineClause, including pages visited, features used, and time spent on the platform.</span></li>
-                <li className={`flex items-start gap-2.5 ${mobile ? "" : "border-b border-border pb-2"}`}><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Device information:</strong> Browser type, operating system, IP address, and device identifiers for security and analytics purposes.</span></li>
+                <li className={`flex items-start gap-2.5 ${mobile ? "" : "border-b border-border pb-2"}`}><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Device information:</strong> Operating system, IP address, and device identifiers for {mobile ? "security purposes." : "security and analytics purposes."}</span></li>
                 {/* Payment information bullet hidden on mobile — the iOS/Android
                     app has no payments or billing (Apple 3.1.1) */}
                 {!mobile && (
@@ -50,7 +50,7 @@ const PrivacyPage = () => {
               <h2 className="text-xl font-bold font-display mb-3">Information Sharing</h2>
               <p className="mb-3">FineClause may share your personal information with:</p>
               <ul className="list-none space-y-2">
-                <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Service providers:</strong> Third-party companies that help us operate, including cloud hosting, payment processing, and analytics services.</span></li>
+                <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Service providers:</strong> Third-party companies that help us operate, including cloud hosting{mobile ? "." : ", payment processing, and analytics services."}</span></li>
                 <li className="flex items-start gap-2.5 border-b border-border pb-2"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Legal requirements:</strong> When required by law, regulation, or legal process.</span></li>
                 <li className="flex items-start gap-2.5"><span className="text-accent font-bold text-xs mt-1">•</span><span><strong>Business transfers:</strong> In connection with a merger, acquisition, or sale of assets.</span></li>
               </ul>
