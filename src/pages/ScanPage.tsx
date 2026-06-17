@@ -123,14 +123,17 @@ const ScanPage = () => {
     try {
       const { Camera: Cap, CameraResultType, CameraSource } = await import("@capacitor/camera");
       const photo = await Cap.getPhoto({
-        resultType: CameraResultType.DataUrl,
+        resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
         quality: 85,
         allowEditing: false,
       });
-      if (photo.dataUrl) {
-        const res = await fetch(photo.dataUrl);
-        const blob = await res.blob();
+      if (photo.base64String) {
+        // Convert base64 → Uint8Array → Blob without fetch() (blocked in WKWebView)
+        const binary = atob(photo.base64String);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: "image/jpeg" });
         const capturedFile = new File([blob], "document-photo.jpg", { type: "image/jpeg" });
         setFile(capturedFile);
         setInputMode("file");
