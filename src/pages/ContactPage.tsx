@@ -1,8 +1,10 @@
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { isMobileApp } from "@/lib/isMobileApp";
 
 const ContactPage = () => {
+  const mobile = isMobileApp();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -54,10 +56,14 @@ const ContactPage = () => {
                 <MessageCircle className="w-5 h-5 text-accent" />
               </div>
               <h3 className="font-display text-lg font-bold mb-2">Messengers</h3>
-              <div className="flex gap-4">
-                <a href="https://t.me/empatixtech" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Telegram</a>
-                <a href="https://wa.me/37126761557" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">WhatsApp</a>
-              </div>
+              {mobile ? (
+                <p className="text-sm text-muted-foreground">Email or call us directly.</p>
+              ) : (
+                <div className="flex gap-4">
+                  <a href="https://t.me/empatixtech" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Telegram</a>
+                  <a href="https://wa.me/37126761557" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">WhatsApp</a>
+                </div>
+              )}
             </div>
           </div>
 

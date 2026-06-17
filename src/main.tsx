@@ -25,10 +25,24 @@ async function initNative() {
   try {
     const { Capacitor } = await import("@capacitor/core");
     if (!Capacitor.isNativePlatform()) return;
-    // Status bar and splash screen handled natively in AppDelegate.swift
-    console.log("[Native] Running in Capacitor:", Capacitor.getPlatform());
+
+    // Status bar — match system dark/light mode
+    const { StatusBar, Style } = await import("@capacitor/status-bar");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    await StatusBar.setStyle({ style: prefersDark ? Style.Dark : Style.Light });
+    await StatusBar.setOverlaysWebView({ overlay: false });
+
+    // Keyboard — scroll focused input into view, keep the iOS input accessory bar
+    const { Keyboard } = await import("@capacitor/keyboard");
+    await Keyboard.setScroll({ isDisabled: false });
+    await Keyboard.setAccessoryBarVisible({ isVisible: true });
+
+    // Keep status bar style in sync when the user switches system appearance
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", async (e) => {
+      await StatusBar.setStyle({ style: e.matches ? Style.Dark : Style.Light });
+    });
   } catch {
-    // Not running in Capacitor
+    // Not running in Capacitor — ignore
   }
 }
 

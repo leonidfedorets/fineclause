@@ -52,11 +52,7 @@
 	<string>FineClause uses the camera to scan contracts and documents for AI analysis.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>FineClause needs access to your photos to upload CVs and contract documents.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>FineClause saves generated reports to your photo library.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>FineClause uses Face ID for secure passkey sign-in without a password.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>FineClause may use the microphone for document capture.</string>
+	<string>FineClause uses Face ID to sign you in securely without a password.</string>
 </dict>
 </plist>

@@ -311,15 +311,15 @@ const DashboardPage = () => {
           </>
         )}
       </div>
-      {/* Security / Passkeys — hidden on mobile (WebAuthn not supported in WebView) */}
-      {!isMobile && (
-        <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
-          <div className="max-w-xl" data-testid="dashboard-passkey-section">
-            <h2 className="text-lg font-display font-bold text-foreground mb-4">Security</h2>
-            <PasskeyManager />
-          </div>
+      {/* Security / Passkeys — Face ID on iOS 16+, Touch ID on older devices */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
+        <div className="max-w-xl" data-testid="dashboard-passkey-section">
+          <h2 className="text-lg font-display font-bold text-foreground mb-4">
+            {isMobile ? "Face ID / Passkey" : "Security"}
+          </h2>
+          <PasskeyManager />
         </div>
-      )}
+      </div>
     </div>
   );
 };

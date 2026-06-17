@@ -1,6 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FileSearch, LayoutDashboard, FileText, Info } from "lucide-react";
-import { useState } from "react";
 
 const tabs = [
   { to: "/scan",      icon: FileSearch,      label: "Scan" },
@@ -9,8 +8,16 @@ const tabs = [
   { to: "/contact",   icon: Info,            label: "More" },
 ];
 
+const fireHaptic = async () => {
+  try {
+    const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+    await Haptics.impact({ style: ImpactStyle.Light });
+  } catch { /* non-fatal */ }
+};
+
 const MobileTabBar = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   return (
     <nav
@@ -24,11 +31,11 @@ const MobileTabBar = () => {
         {tabs.map(({ to, icon: Icon, label }) => {
           const active = pathname === to || (to !== "/" && pathname.startsWith(to));
           return (
-            <Link
+            <button
               key={to}
-              to={to}
+              onClick={() => { fireHaptic(); navigate(to); }}
               className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors"
-              style={{ WebkitTapHighlightColor: "transparent" }}
+              style={{ WebkitTapHighlightColor: "transparent", background: "none", border: "none" }}
             >
               <Icon
                 className="w-6 h-6 transition-colors"
@@ -41,7 +48,7 @@ const MobileTabBar = () => {
               >
                 {label}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
