@@ -73,6 +73,38 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // On mobile, render a minimal native-style header bar.
+  // Navigation is handled by the bottom tab bar (MobileTabBar).
+  if (isMobile) {
+    return (
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <div className="h-14 flex items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center">
+              <span className="text-white font-display font-bold text-sm leading-none">F</span>
+            </div>
+            <span className="font-display font-semibold text-base tracking-tight text-foreground">FineClause</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            {user && (
+              <button
+                onClick={signOut}
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
   const close = () => setMobileOpen(false);
 
   const docScanPaths = ["/scan", "/templates", "/dashboard"];

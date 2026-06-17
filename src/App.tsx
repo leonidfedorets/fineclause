@@ -34,6 +34,7 @@ import TaxEstimationPage from "./pages/TaxEstimationPage";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import MobileTabBar from "./components/MobileTabBar";
 import { isMobileApp } from "@/lib/isMobileApp";
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <div className={mobileApp ? "is-mobile-app" : undefined}>
             <HashScrollHandler />
             <Routes>
               <Route path="/" element={<Index />} />
@@ -119,6 +121,9 @@ const App = () => (
                 cookies or use the AppTrackingTransparency framework on iOS/
                 Android (Apple Guideline 5.1.2(i)) */}
             {!mobileApp && <CookieConsent />}
+            {/* Native-style bottom tab bar shown inside the Capacitor shell */}
+            {mobileApp && <MobileTabBar />}
+            </div>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

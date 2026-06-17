@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { Upload, FileText, Loader2, AlertTriangle, CheckCircle, XCircle, Search, ArrowLeft, Type, Lightbulb, Copy, Check, Download, Share2 } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Upload, FileText, Loader2, AlertTriangle, CheckCircle, XCircle, Search, ArrowLeft, Type, Lightbulb, Copy, Check, Download, Share2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "react-router-dom";
@@ -119,6 +119,29 @@ const ScanPage = () => {
     }
   };
 
+  const handleCameraCapture = async () => {
+    try {
+      const { Camera: Cap, CameraResultType, CameraSource } = await import("@capacitor/camera");
+      const photo = await Cap.getPhoto({
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+        quality: 85,
+        allowEditing: false,
+      });
+      if (photo.dataUrl) {
+        const res = await fetch(photo.dataUrl);
+        const blob = await res.blob();
+        const capturedFile = new File([blob], "document-photo.jpg", { type: "image/jpeg" });
+        setFile(capturedFile);
+        setInputMode("file");
+      }
+    } catch (err: any) {
+      if (err?.message !== "User cancelled photos app") {
+        toast.error(t("common.error"));
+      }
+    }
+  };
+
   const handleScan = async () => {
     if (!hasInput) return;
     setScanning(true);
@@ -189,11 +212,26 @@ const ScanPage = () => {
           clauses: analysisResult.clauses as any,
         });
 
-        // Haptic feedback on native mobile after successful scan
+        // Haptic feedback + reminder notification on native mobile after successful scan
         if (mobile) {
           try {
             const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
             await Haptics.impact({ style: ImpactStyle.Medium });
+          } catch { /* non-fatal */ }
+          try {
+            const { LocalNotifications } = await import("@capacitor/local-notifications");
+            const perm = await LocalNotifications.requestPermissions();
+            if (perm.display === "granted") {
+              await LocalNotifications.schedule({
+                notifications: [{
+                  id: Date.now(),
+                  title: "FineClause",
+                  body: "Your scan is ready — tap to review your contract analysis.",
+                  schedule: { at: new Date(Date.now() + 3000) },
+                  smallIcon: "ic_stat_icon_config_sample",
+                }],
+              });
+            }
           } catch { /* non-fatal */ }
         }
       }
@@ -231,7 +269,7 @@ const ScanPage = () => {
               <p className="text-muted-foreground">{t("scan.unlimitedLabel")}</p>
             </div>
 
-            <div id="tour-input-toggle" className="flex gap-2 mb-4">
+            <div id="tour-input-toggle" className="flex gap-2 mb-4 flex-wrap">
               <Button
                 variant={inputMode === "file" ? "default" : "outline"}
                 size="sm"
@@ -250,6 +288,18 @@ const ScanPage = () => {
                 <Type className="w-4 h-4" />
                 {t("scan.pasteText")}
               </Button>
+              {/* Native camera document capture (iOS only) */}
+              {mobile && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCameraCapture}
+                  className="gap-2"
+                >
+                  <Camera className="w-4 h-4" />
+                  Scan Photo
+                </Button>
+              )}
             </div>
 
             {inputMode === "file" ? (

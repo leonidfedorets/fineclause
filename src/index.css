@@ -191,6 +191,11 @@
   100% { background-position: 200% center; }
 }
 
+/* Extra bottom padding when the native tab bar is present (h-16 + safe area) */
+.is-mobile-app .min-h-screen {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+
 .animate-fade-up { animation: fade-up 0.6s ease-out forwards; }
 .animate-fade-up-delay-1 { animation: fade-up 0.6s ease-out 0.1s forwards; opacity: 0; }
 .animate-fade-up-delay-2 { animation: fade-up 0.6s ease-out 0.2s forwards; opacity: 0; }
