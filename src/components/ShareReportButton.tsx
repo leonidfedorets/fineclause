@@ -35,7 +35,11 @@ const ShareReportButton = ({ scanId, fileName }: ShareReportButtonProps) => {
       });
       if (error || data?.error) throw new Error(data?.error || "Failed to create share link");
 
-      const url = `${window.location.origin}/shared/${data.share.share_token}`;
+      // In Capacitor, window.location.origin is capacitor://localhost — use the real domain
+      const base = window.location.origin.startsWith("capacitor")
+        ? "https://fineclause.com"
+        : window.location.origin;
+      const url = `${base}/shared/${data.share.share_token}`;
       setShareUrl(url);
       toast.success("Share link created! Valid for 7 days.");
     } catch (e: any) {
