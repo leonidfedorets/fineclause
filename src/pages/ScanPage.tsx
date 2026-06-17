@@ -115,7 +115,7 @@ const ScanPage = () => {
         dialogTitle: "Share Scan Report",
       });
     } catch {
-      toast.error(t("common.error"));
+      toast.error("Could not open share sheet. Please try again.");
     }
   };
 
@@ -140,7 +140,7 @@ const ScanPage = () => {
       }
     } catch (err: any) {
       if (err?.message !== "User cancelled photos app") {
-        toast.error(t("common.error"));
+        toast.error("Could not access camera. Check camera permissions in Settings.");
       }
     }
   };
@@ -155,7 +155,7 @@ const ScanPage = () => {
       if (inputMode === "text") {
         const text = pastedText.trim();
         if (!text) {
-          toast.error(t("common.error"));
+          toast.error("Please paste some contract text before scanning.");
           setScanning(false);
           return;
         }
@@ -164,7 +164,7 @@ const ScanPage = () => {
         if (isTextFile(file)) {
           const documentText = await readFileAsText(file);
           if (!documentText.trim()) {
-            toast.error(t("common.error"));
+            toast.error("The file appears to be empty. Please choose a different file.");
             setScanning(false);
             return;
           }
@@ -185,7 +185,7 @@ const ScanPage = () => {
 
       if (error) {
         console.error("Edge function error:", error);
-        toast.error(error.message || t("common.error"));
+        toast.error(error.message || "Analysis failed. Please check your connection and try again.");
         setScanning(false);
         return;
       }
@@ -240,7 +240,7 @@ const ScanPage = () => {
       }
     } catch (err) {
       console.error("Scan error:", err);
-      toast.error(t("common.error"));
+      toast.error("Something went wrong during analysis. Please try again.");
     } finally {
       setScanning(false);
     }
@@ -493,7 +493,7 @@ const ScanPage = () => {
                   onClick={() => {
                     if (results) {
                       generateScanReport(results);
-                      toast.success(t("common.success"));
+                      toast.success("Report downloaded successfully.");
                     }
                   }}
                 >

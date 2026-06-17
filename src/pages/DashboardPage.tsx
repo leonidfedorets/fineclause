@@ -67,11 +67,11 @@ const DashboardPage = () => {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("scan_history").delete().eq("id", id);
     if (error) {
-      toast.error(t("common.error"));
+      toast.error("Could not delete scan. Please try again.");
     } else {
       setScans((prev) => prev.filter((s) => s.id !== id));
       if (selectedScan?.id === id) setSelectedScan(null);
-      toast.success(t("common.success"));
+      toast.success("Scan deleted.");
     }
   };
 
