@@ -16,7 +16,6 @@ import {
   XCircle,
   ArrowLeftRight,
   ChevronLeft,
-  Shield,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -250,7 +249,7 @@ const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord })
 
 /* ── Main page ─────────────────────────────────── */
 const ComparisonPage = () => {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -293,20 +292,6 @@ const ComparisonPage = () => {
     const titlesB = new Set((scanB.clauses as unknown as RiskClause[] | null)?.map(c => c.title.toLowerCase()) ?? []);
     return new Set(titlesA.filter(t => titlesB.has(t)));
   }, [scanA, scanB]);
-
-  if (user && !isAdmin) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 pt-24 pb-16 text-center">
-          <Shield className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold font-display text-foreground mb-2">Access Restricted</h1>
-          <p className="text-muted-foreground mb-6">This page is not available for your account.</p>
-          <Button variant="outline" onClick={() => navigate("/")}>Go Home</Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
