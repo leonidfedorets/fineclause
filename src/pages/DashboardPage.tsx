@@ -48,7 +48,25 @@ const DashboardPage = () => {
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState<ScanRecord | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const navigate = useNavigate();
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke("delete-account");
+      if (error) throw error;
+      await signOut();
+      navigate("/");
+      toast.success("Your account has been permanently deleted.");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to delete account. Please contact support.");
+    } finally {
+      setDeletingAccount(false);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -91,6 +109,7 @@ const DashboardPage = () => {
 
 
   return (
+    <>
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 pt-24 pb-16">
@@ -201,15 +220,26 @@ const DashboardPage = () => {
               {/* Top row: title + sign out */}
               <div className="flex items-center justify-between mb-1">
                 <h1 className="text-2xl font-bold font-display text-foreground">{t("dashboard.title")}</h1>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={async () => { await signOut(); navigate("/"); }}
-                  className="text-muted-foreground hover:text-foreground gap-1.5 -mr-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t("dashboard.signOut")}</span>
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => { await signOut(); navigate("/"); }}
+                    className="text-muted-foreground hover:text-foreground gap-1.5"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="hidden sm:inline">{t("dashboard.signOut")}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-destructive hover:bg-destructive/10 gap-1.5 -mr-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="text-xs">Delete Account</span>
+                  </Button>
+                </div>
               </div>
 
               {/* Email (truncated, never overlaps) */}
@@ -313,14 +343,79 @@ const DashboardPage = () => {
       </div>
       {/* Passkeys use WebAuthn rpId which requires Associated Domains — web only for now */}
       {!isMobile && (
-        <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 pb-8">
           <div className="max-w-xl" data-testid="dashboard-passkey-section">
             <h2 className="text-lg font-display font-bold text-foreground mb-4">Security</h2>
             <PasskeyManager />
           </div>
         </div>
       )}
+
+      {/* Account Settings — always visible, required by Apple Guideline 5.1.1(v) */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
+        <div className="max-w-xl">
+          <h2 className="text-lg font-display font-bold text-foreground mb-4">Account Settings</h2>
+          <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+            <div className="flex items-start gap-4">
+              <div className="w-9 h-9 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-foreground text-sm mb-1">Delete Account</p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Permanently deletes your account and all associated scan history. This action cannot be undone.
+                </p>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete My Account
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    {/* Delete Account confirmation modal */}
+    {showDeleteConfirm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div className="w-full max-w-sm bg-background rounded-2xl shadow-2xl border border-destructive/30 overflow-hidden">
+          <div className="p-6">
+            <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <Trash2 className="w-5 h-5 text-destructive" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-2">Delete Account</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              This will permanently delete your account and all scan history. This action cannot be undone.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="destructive"
+                className="w-full"
+                disabled={deletingAccount}
+                onClick={handleDeleteAccount}
+              >
+                {deletingAccount ? "Deleting…" : "Yes, permanently delete my account"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full"
+                disabled={deletingAccount}
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 
