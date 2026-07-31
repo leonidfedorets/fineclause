@@ -1,16 +1,17 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Upload, FileText, Loader2, AlertTriangle, CheckCircle, XCircle, Search, ArrowLeft, Type, Lightbulb, Copy, Check, Download, Share2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import OnboardingTour from "@/components/OnboardingTour";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { generateScanReport } from "@/lib/generateScanReport";
 import { useTranslation } from "react-i18next";
 import { isMobileApp } from "@/lib/isMobileApp";
+import { AIConsentDialog, hasAIConsent } from "@/components/AIConsentDialog";
 
 interface RiskClause {
   title: string;
@@ -60,11 +61,29 @@ const readFileAsText = (file: File): Promise<string> => {
   });
 };
 
+const SUPPORTED_MIME = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain",
+  "text/markdown",
+  "text/rtf",
+];
+const SUPPORTED_EXTS = [".pdf", ".docx", ".txt", ".md", ".rtf"];
+const MAX_FILE_BYTES = 20 * 1024 * 1024;
+
+const getFileExt = (file: File) =>
+  "." + (file.name.split(".").pop() ?? "").toLowerCase();
+
+const isSupportedFile = (file: File) =>
+  SUPPORTED_MIME.includes(file.type) || SUPPORTED_EXTS.includes(getFileExt(file));
+
 const isTextFile = (file: File) => {
   const textTypes = ["text/plain", "text/markdown", "text/rtf"];
   const textExtensions = [".txt", ".md", ".rtf"];
   return textTypes.includes(file.type) || textExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
 };
+
+const UNSUPPORTED_MSG = "Unsupported file. Please upload PDF, DOCX, TXT, MD, or RTF (max 20 MB).";
 
 const CopyButton = ({ text }: { text: string }) => {
   const { t } = useTranslation();
@@ -82,15 +101,30 @@ const CopyButton = ({ text }: { text: string }) => {
 };
 
 const ScanPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, isMobile } = useAuth();
   const mobile = isMobileApp();
   const [file, setFile] = useState<File | null>(null);
+  const [fileIsCamera, setFileIsCamera] = useState(false);
   const [pastedText, setPastedText] = useState("");
   const [inputMode, setInputMode] = useState<"file" | "text">("file");
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
+  const [scanFileName, setScanFileName] = useState<string>("");
+  const [scanRiskScore, setScanRiskScore] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [showAIConsent, setShowAIConsent] = useState(false);
+  const [consentAI, setConsentAI] = useState(false);
+  const pendingActionRef = useRef<(() => void) | null>(null);
+
+  const requireAIConsent = (action: () => void) => {
+    if (hasAIConsent()) {
+      action();
+    } else {
+      pendingActionRef.current = action;
+      setShowAIConsent(true);
+    }
+  };
 
   const hasInput = inputMode === "file" ? !!file : pastedText.trim().length > 0;
 
@@ -98,24 +132,25 @@ const ScanPage = () => {
     e.preventDefault();
     setDragOver(false);
     const dropped = e.dataTransfer.files[0];
-    if (dropped) {
-      setFile(dropped);
-      setInputMode("file");
-    }
+    if (!dropped) return;
+    if (!isSupportedFile(dropped)) { toast.error(UNSUPPORTED_MSG); return; }
+    if (dropped.size > MAX_FILE_BYTES) { toast.error("File is too large. Maximum size is 20 MB."); return; }
+    setFile(dropped);
+    setFileIsCamera(false);
+    setInputMode("file");
   }, []);
 
   const handleNativeShare = async () => {
     if (!results) return;
     try {
-      const { Share } = await import("@capacitor/share");
-      const lines = results.clauses.map(c => `[${c.risk.toUpperCase()}] ${c.title}: ${c.explanation}`).join("\n\n");
-      await Share.share({
-        title: "FineClause Contract Scan",
-        text: `Document: ${results.documentType}\n\nSummary: ${results.summary}\n\n${lines}`,
-        dialogTitle: "Share Scan Report",
-      });
-    } catch {
-      toast.error("Could not open share sheet. Please try again.");
+      const toastId = toast.loading("Generating PDF report…");
+      const { generateScanPDF, sharePDFReport } = await import("@/lib/pdfReport");
+      const blob = await generateScanPDF(scanFileName || "Contract", results, scanRiskScore);
+      toast.dismiss(toastId);
+      await sharePDFReport(blob, "fineclause_scan_report.pdf", "Contract Risk Report");
+    } catch (e) {
+      console.error("Share error:", e);
+      toast.error("Could not generate or share the report. Please try again.");
     }
   };
 
@@ -137,19 +172,22 @@ const ScanPage = () => {
       const photo = await Cap.getPhoto({
         resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
-        quality: 85,
+        quality: 70,
+        width: 1024,
+        height: 1024,
+        preserveAspectRatio: true,
         allowEditing: false,
         saveToGallery: false,
       });
 
       if (photo.base64String) {
-        // Convert base64 → Uint8Array → Blob without fetch() (blocked in WKWebView)
         const binary = atob(photo.base64String);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
         const blob = new Blob([bytes], { type: "image/jpeg" });
         const capturedFile = new File([blob], "document-photo.jpg", { type: "image/jpeg" });
         setFile(capturedFile);
+        setFileIsCamera(true);
         setInputMode("file");
       }
     } catch (err: any) {
@@ -169,7 +207,7 @@ const ScanPage = () => {
     setScanning(true);
 
     try {
-      let body: Record<string, string>;
+      let invokeBody: FormData | Record<string, string>;
 
       if (inputMode === "text") {
         const text = pastedText.trim();
@@ -178,33 +216,69 @@ const ScanPage = () => {
           setScanning(false);
           return;
         }
-        body = { documentText: text };
+        invokeBody = { documentText: text };
       } else if (file) {
-        if (isTextFile(file)) {
+        // Camera images bypass the type check (JPEG from camera → Vision API)
+        if (!fileIsCamera && !isSupportedFile(file)) {
+          toast.error(UNSUPPORTED_MSG);
+          setScanning(false);
+          return;
+        }
+        if (file.size > MAX_FILE_BYTES) {
+          toast.error("File is too large. Maximum size is 20 MB.");
+          setScanning(false);
+          return;
+        }
+        if (fileIsCamera) {
+          // Camera JPEG: send as FormData binary — same path as DOCX/PDF uploads, proven reliable
+          const form = new FormData();
+          form.append("file", file);
+          invokeBody = form;
+        } else if (isTextFile(file)) {
           const documentText = await readFileAsText(file);
           if (!documentText.trim()) {
             toast.error("The file appears to be empty. Please choose a different file.");
             setScanning(false);
             return;
           }
-          body = { documentText };
+          invokeBody = { documentText };
         } else {
-          const fileData = await readFileAsBase64(file);
-          body = { fileData, fileType: file.type || file.name };
+          // Send binary file directly — edge function reads via req.formData()
+          const form = new FormData();
+          form.append("file", file);
+          invokeBody = form;
         }
       } else {
         return;
       }
 
+      if (invokeBody instanceof FormData) {
+        invokeBody.append("language", i18n.language);
+      } else {
+        invokeBody.language = i18n.language;
+      }
+
       const { data, error } = await supabase.functions.invoke("analyze-contract", {
-        body,
-        // Tell backend this is a mobile client → skip scan limits for auth users
-        headers: isMobile ? { "X-Mobile-Client": "capacitor" } : undefined,
+        body: invokeBody,
+        headers: mobile ? { "X-Mobile-Client": "capacitor" } : undefined,
       });
 
       if (error) {
-        console.error("Edge function error:", error);
-        toast.error(error.message || "Analysis failed. Please check your connection and try again.");
+        let errMsg = error.message || "Analysis failed. Please check your connection and try again.";
+        if (error.name === "FunctionsHttpError") {
+          try {
+            if (typeof error.context?.json === "function") {
+              const errBody = await error.context.json();
+              errMsg = errBody?.error || errMsg;
+            } else if (typeof error.context?.text === "function") {
+              errMsg = (await error.context.text()) || errMsg;
+            }
+          } catch { /* use default message */ }
+          console.error("[Scan] HTTP error status:", error.context?.status, "msg:", errMsg);
+        } else {
+          console.error("[Scan] error name:", error.name, "msg:", errMsg);
+        }
+        toast.error(errMsg);
         setScanning(false);
         return;
       }
@@ -224,6 +298,8 @@ const ScanPage = () => {
         const riskScore = analysisResult.clauses.length
           ? Math.round((safeCount / analysisResult.clauses.length) * 100)
           : 0;
+        setScanFileName(fileName);
+        setScanRiskScore(riskScore);
 
         await supabase.from("scan_history").insert({
           user_id: user.id,
@@ -273,9 +349,9 @@ const ScanPage = () => {
   const cautionCount = clauses.filter((r) => r.risk === "caution").length;
 
   return (
+    <>
     <div className="min-h-screen bg-background">
       <Navbar />
-      {!results && <OnboardingTour />}
       <div className="container mx-auto px-4 pt-24 pb-16">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" />
@@ -288,10 +364,9 @@ const ScanPage = () => {
               <h1 className="text-3xl md:text-4xl font-bold font-display text-foreground mb-3">
                 {t("scan.title")}
               </h1>
-              <p className="text-muted-foreground">{t("scan.unlimitedLabel")}</p>
             </div>
 
-            <div id="tour-input-toggle" className="flex gap-2 mb-4 flex-wrap">
+            <div className="flex gap-2 mb-4 flex-wrap">
               <Button
                 variant={inputMode === "file" ? "default" : "outline"}
                 size="sm"
@@ -326,7 +401,6 @@ const ScanPage = () => {
 
             {inputMode === "file" ? (
               <div
-                id="tour-input-area"
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
@@ -338,10 +412,14 @@ const ScanPage = () => {
                 onClick={() => {
                   const input = document.createElement("input");
                   input.type = "file";
-                  input.accept = ".txt,.pdf,.docx,.doc,.md,.rtf";
+                  input.accept = ".pdf,.docx,.txt,.md,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/rtf";
                   input.onchange = (e: any) => {
                     const f = e.target.files?.[0];
-                    if (f) setFile(f);
+                    if (!f) return;
+                    if (!isSupportedFile(f)) { toast.error(UNSUPPORTED_MSG); return; }
+                    if (f.size > MAX_FILE_BYTES) { toast.error("File is too large. Maximum size is 20 MB."); return; }
+                    setFile(f);
+                    setFileIsCamera(false);
                   };
                   input.click();
                 }}
@@ -379,12 +457,26 @@ const ScanPage = () => {
               </div>
             )}
 
-            <div id="tour-scan-button">
+            {/* AI consent — visible per-submission, required by Apple 5.1.1(i)/5.1.2(i) */}
+            <div className="mt-5 flex items-start gap-3">
+              <Checkbox
+                id="scan-consent-ai"
+                checked={consentAI}
+                onCheckedChange={(v) => setConsentAI(v === true)}
+                disabled={scanning}
+                className="mt-0.5"
+              />
+              <label htmlFor="scan-consent-ai" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                {t("scan.consentLabel")} <span className="text-foreground font-medium">{t("scan.consentRequired")}</span>
+              </label>
+            </div>
+
+            <div>
             <Button
               variant="hero"
               size="lg"
-              className="w-full mt-6 py-6 text-base"
-              disabled={!hasInput || scanning}
+              className="w-full mt-4 py-6 text-base"
+              disabled={!hasInput || scanning || !consentAI}
               onClick={handleScan}
             >
               {scanning ? (
@@ -453,6 +545,10 @@ const ScanPage = () => {
               </div>
             </div>
 
+            <p className="text-xs text-muted-foreground/70 italic mb-5 border border-border/50 rounded-lg px-3 py-2 bg-muted/30">
+              ⚠️ This analysis is generated by AI and is for informational purposes only. It does not constitute legal advice. Consult a qualified attorney before making legal decisions.
+            </p>
+
             <h3 className="text-xl font-bold font-display text-foreground mb-4">{t("scan.clauseBreakdown")}</h3>
             <div className="space-y-4">
               {clauses.map((clause, idx) => (
@@ -495,7 +591,7 @@ const ScanPage = () => {
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Button variant="outline" size="lg" onClick={() => { setResults(null); setFile(null); setPastedText(""); }}>
+              <Button variant="outline" size="lg" onClick={() => { setResults(null); setFile(null); setFileIsCamera(false); setPastedText(""); }}>
                 {t("scan.scanAnother")}
               </Button>
               {/* Native share sheet on mobile (Apple 4.2 native functionality) */}
@@ -525,6 +621,24 @@ const ScanPage = () => {
         )}
       </div>
     </div>
+
+    {showAIConsent && (
+      <AIConsentDialog
+        onAccept={() => {
+          setShowAIConsent(false);
+          if (pendingActionRef.current) {
+            const action = pendingActionRef.current;
+            pendingActionRef.current = null;
+            action();
+          }
+        }}
+        onCancel={() => {
+          setShowAIConsent(false);
+          pendingActionRef.current = null;
+        }}
+      />
+    )}
+    </>
   );
 };
 

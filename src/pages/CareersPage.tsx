@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import { isMobileApp } from "@/lib/isMobileApp";
 import JobMatchesSection, { type JobMatch, type AllJob } from "@/components/JobMatchesSection";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,10 +26,11 @@ import {
   GraduationCap,
   BriefcaseBusiness,
   X,
+  Share2,
 } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useCallback } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 interface CVAnalysis {
@@ -51,17 +51,16 @@ const CareersPage = () => {
   const mobile = isMobileApp();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [email, setEmail] = useState("");
   const [consentAnalysis, setConsentAnalysis] = useState(false);
   const [consentRecruiter, setConsentRecruiter] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<CVAnalysis | null>(null);
+  const [cvFileName, setCVFileName] = useState<string>("");
   const [jobMatches, setJobMatches] = useState<JobMatch[]>([]);
   const [allJobs, setAllJobs] = useState<AllJob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
@@ -88,10 +87,10 @@ const CareersPage = () => {
       if (file.size <= 10 * 1024 * 1024) {
         setSelectedFile(file);
       } else {
-        toast({ title: t("careers.fileTooLarge"), description: t("careers.fileTooLargeDesc"), variant: "destructive" });
+        toast.error(t("careers.fileTooLargeDesc"));
       }
     }
-  }, [toast, t]);
+  }, [t]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -99,22 +98,18 @@ const CareersPage = () => {
       if (file.size <= 10 * 1024 * 1024) {
         setSelectedFile(file);
       } else {
-        toast({ title: t("careers.fileTooLarge"), description: t("careers.fileTooLargeDesc"), variant: "destructive" });
+        toast.error(t("careers.fileTooLargeDesc"));
       }
     }
   };
 
   const handleAnalyze = async () => {
     if (!selectedFile) {
-      toast({ title: t("careers.noFile"), description: t("careers.noFileDesc"), variant: "destructive" });
-      return;
-    }
-    if (!email.trim() || !email.includes("@")) {
-      toast({ title: t("careers.emailRequired"), description: t("careers.emailRequiredDesc"), variant: "destructive" });
+      toast.error(t("careers.noFileDesc"));
       return;
     }
     if (!consentAnalysis) {
-      toast({ title: t("careers.consentRequiredToast"), description: t("careers.consentRequiredToastDesc"), variant: "destructive" });
+      toast.error(t("careers.consentRequiredToastDesc"));
       return;
     }
 
@@ -126,23 +121,23 @@ const CareersPage = () => {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
-      formData.append("email", email.trim());
       formData.append("consent_analysis", String(consentAnalysis));
       formData.append("consent_recruiter", String(consentRecruiter));
+      formData.append("language", i18n.language);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-cv`,
-        { method: "POST", body: formData }
+        { method: "POST", body: formData, headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` } }
       );
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({ error: t("careers.analysisFailed") }));
         if (response.status === 429) {
-          toast({ title: t("careers.serviceBusy"), description: t("careers.serviceBusyDesc"), variant: "destructive" });
+          toast.error(t("careers.serviceBusyDesc"));
         } else if (response.status === 402) {
-          toast({ title: t("careers.serviceUnavailable"), description: t("careers.serviceUnavailableDesc"), variant: "destructive" });
+          toast.error(t("careers.serviceUnavailableDesc"));
         } else {
-          toast({ title: t("careers.analysisFailed"), description: err.error || t("careers.analysisFailed"), variant: "destructive" });
+          toast.error(err.error || t("careers.analysisFailed"));
         }
         return;
       }
@@ -150,22 +145,29 @@ const CareersPage = () => {
       const data = await response.json();
       if (data.success && data.analysis) {
         setAnalysis(data.analysis);
+        setCVFileName(selectedFile.name);
         if (data.job_matches && data.job_matches.length > 0) {
           setJobMatches(data.job_matches);
         }
         if (data.all_jobs && data.all_jobs.length > 0) {
           setAllJobs(data.all_jobs);
         }
-        toast({ title: t("careers.analysisComplete"), description: t("careers.analysisCompleteDesc") });
+        if (mobile) {
+          try {
+            const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+            await Haptics.impact({ style: ImpactStyle.Medium });
+          } catch { /* haptics not available */ }
+        }
+        toast.success(t("careers.analysisCompleteDesc"));
         setTimeout(() => {
           resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 300);
       } else {
-        toast({ title: t("careers.analysisFailed"), description: t("careers.analysisFailed"), variant: "destructive" });
+        toast.error(t("careers.analysisFailed"));
       }
     } catch (error) {
       console.error("CV analysis error:", error);
-      toast({ title: t("careers.connectionError"), description: t("careers.connectionErrorDesc"), variant: "destructive" });
+      toast.error(t("careers.connectionErrorDesc"));
     } finally {
       setIsAnalyzing(false);
     }
@@ -182,6 +184,20 @@ const CareersPage = () => {
     if (score >= 60) return t("careers.good");
     if (score >= 40) return t("careers.needsWork");
     return t("careers.weak");
+  };
+
+  const handleNativeShare = async () => {
+    if (!analysis) return;
+    try {
+      const toastId = toast.loading("Generating PDF report…");
+      const { generateCVPDF, sharePDFReport } = await import("@/lib/pdfReport");
+      const blob = await generateCVPDF(cvFileName || "CV", analysis);
+      toast.dismiss(toastId);
+      await sharePDFReport(blob, "fineclause_cv_report.pdf", "CV Analysis Report");
+    } catch (e) {
+      console.error("CV share error:", e);
+      toast.error("Could not generate or share the report. Please try again.");
+    }
   };
 
   const features = [
@@ -280,12 +296,6 @@ const CareersPage = () => {
                 )}
               </div>
 
-              {/* Email Input */}
-              <div className="mb-4">
-                <label className="text-sm font-medium mb-2 block">{t("careers.emailLabel")}</label>
-                <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isAnalyzing} />
-              </div>
-
               {/* GDPR Consent Checkboxes */}
               <div className="space-y-3 mb-6">
                 <div className="flex items-start gap-3">
@@ -328,6 +338,9 @@ const CareersPage = () => {
           <section ref={resultsRef} className="py-16 px-6 md:px-16 border-b border-border">
             <div className="max-w-[1000px] mx-auto">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                <p className="text-xs text-muted-foreground/70 italic mb-5 border border-border/50 rounded-lg px-3 py-2 bg-muted/30">
+                  ⚠️ This analysis is generated by AI and is for informational purposes only. Results may vary and do not constitute professional career or legal advice.
+                </p>
                 <div className="text-xs font-mono tracking-widest uppercase text-accent mb-4">{t("careers.reportLabel")}</div>
                 <h2 className="text-3xl md:text-4xl font-black font-display tracking-tight mb-8">
                   {t("careers.resultsTitle")} <em className="italic text-accent">{t("careers.resultsAccent")}</em>
@@ -414,8 +427,14 @@ const CareersPage = () => {
                 {/* Job Matches — hidden in the mobile app (Apple 3.1.1: no recruiter/employer flows) */}
                 {!mobile && <JobMatchesSection matches={jobMatches} allJobs={allJobs} />}
 
-                <div className="text-center mt-8">
-                  <Button variant="outline" onClick={() => { setAnalysis(null); setJobMatches([]); setAllJobs([]); setSelectedFile(null); setEmail(""); setConsentAnalysis(false); setConsentRecruiter(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                <div className="flex justify-center gap-3 mt-8 flex-wrap">
+                  {mobile && (
+                    <Button variant="outline" onClick={handleNativeShare} className="gap-2">
+                      <Share2 className="w-4 h-4" />
+                      Share Report
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={() => { setAnalysis(null); setJobMatches([]); setAllJobs([]); setSelectedFile(null); setConsentAnalysis(false); setConsentRecruiter(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
                     {t("careers.analyzeAnother")}
                   </Button>
                 </div>
