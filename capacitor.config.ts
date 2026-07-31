@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     backgroundColor: '#f8fafc',
     preferredContentMode: 'mobile',
-    minVersion: '15.0',
+    minVersion: '16.0',
   },
   android: {
     backgroundColor: '#f8fafc',

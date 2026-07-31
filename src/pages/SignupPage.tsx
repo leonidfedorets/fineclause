@@ -112,7 +112,7 @@ const SignupPage = () => {
   };
 
   // Mobile signup is free — no "Pro"/subscription pricing references (Apple 3.1.1)
-  const features = ["Unlimited contract scans", "AI-powered analysis", "Hidden fee detection", "Scan history & exports"];
+  const features = ["AI-powered contract analysis", "Hidden fee & risk detection", "CV analysis & market scoring", "Scan history & PDF reports"];
   const agencyFeatures = ["Full recruitment platform", "HubSpot CRM integration", "Unlimited job listings", "Candidate matching & analytics"];
 
   return (
