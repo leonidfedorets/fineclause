@@ -34,6 +34,36 @@ const SignupPage = () => {
   const handlePersonalSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    if (mobile) {
+      // Mobile app: no email confirmation step — account is created pre-confirmed, then signed in immediately.
+      const { error: createError } = await supabase.functions.invoke("mobile-signup", {
+        body: { email, password },
+      });
+      if (createError) {
+        setLoading(false);
+        let errMsg = createError.message || "Could not create account.";
+        if (createError.name === "FunctionsHttpError" && typeof createError.context?.json === "function") {
+          try {
+            const errBody = await createError.context.json();
+            errMsg = errBody?.error || errMsg;
+          } catch { /* use default message */ }
+        }
+        toast.error(errMsg);
+        return;
+      }
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      setLoading(false);
+      if (signInError) {
+        toast.error(signInError.message);
+        navigate("/login");
+        return;
+      }
+      toast.success(t("auth.welcomeBackToast"));
+      navigate("/dashboard");
+      return;
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,

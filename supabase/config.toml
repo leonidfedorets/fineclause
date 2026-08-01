@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.analyze-tax]
 verify_jwt = false
+
+[functions.mobile-signup]
+verify_jwt = false
