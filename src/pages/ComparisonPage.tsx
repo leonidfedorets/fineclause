@@ -18,6 +18,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -101,6 +102,7 @@ const ClausePanel = ({
   highlightedTitle?: string | null;
   onSharedClick?: (title: string) => void;
 }) => {
+  const { t } = useTranslation();
   const clauses = scan.clauses ? (scan.clauses as unknown as RiskClause[]) : [];
   const dangerCount = clauses.filter((c) => c.risk === "danger").length;
   const cautionCount = clauses.filter((c) => c.risk === "caution").length;
@@ -125,9 +127,9 @@ const ClausePanel = ({
           </div>
         </div>
         <div className="flex gap-3 mt-4 flex-wrap">
-          {dangerCount > 0 && <span className="risk-badge-danger">{dangerCount} High Risk</span>}
-          {cautionCount > 0 && <span className="risk-badge-caution">{cautionCount} Caution</span>}
-          <span className="risk-badge-safe">{safeCount} Safe</span>
+          {dangerCount > 0 && <span className="risk-badge-danger">{t("compare.countHighRisk", { count: dangerCount })}</span>}
+          {cautionCount > 0 && <span className="risk-badge-caution">{t("compare.countCaution", { count: cautionCount })}</span>}
+          <span className="risk-badge-safe">{t("compare.countSafe", { count: safeCount })}</span>
         </div>
       </div>
 
@@ -156,19 +158,19 @@ const ClausePanel = ({
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h4 className="font-semibold text-sm text-foreground">{clause.title}</h4>
                   <span className={`${riskBadge[clause.risk]} text-[10px]`}>
-                    {clause.risk === "safe" ? "Safe" : clause.risk === "caution" ? "Caution" : "High Risk"}
+                    {clause.risk === "safe" ? t("scan.safe") : clause.risk === "caution" ? t("scan.caution") : t("scan.highRisk")}
                   </span>
                   {sharedTitles.size > 0 && (
                     isShared ? (
                       <button
                         onClick={() => onSharedClick?.(titleKey)}
                         className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground border border-accent/30 font-medium cursor-pointer hover:bg-accent/40 transition-colors"
-                        title="Click to jump to matching clause"
+                        title={t("compare.clickToJump")}
                       >
-                        ↔ Shared
+                        ↔ {t("compare.shared")}
                       </button>
                     ) : (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-medium">Unique</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-medium">{t("compare.unique")}</span>
                     )
                   )}
                 </div>
@@ -183,7 +185,7 @@ const ClausePanel = ({
       })}
 
       {clauses.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-6">No clauses found.</p>
+        <p className="text-sm text-muted-foreground text-center py-6">{t("compare.noClausesFound")}</p>
       )}
     </div>
   );
@@ -191,6 +193,7 @@ const ClausePanel = ({
 
 /* ── Diff summary ──────────────────────────────── */
 const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord }) => {
+  const { t } = useTranslation();
   const clausesA = scanA.clauses ? (scanA.clauses as unknown as RiskClause[]) : [];
   const clausesB = scanB.clauses ? (scanB.clauses as unknown as RiskClause[]) : [];
 
@@ -203,7 +206,7 @@ const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord })
   const fmtDiff = (d: number, inverted = false) => {
     const positive = inverted ? d < 0 : d > 0;
     const negative = inverted ? d > 0 : d < 0;
-    if (d === 0) return <span className="text-muted-foreground text-sm font-mono">same</span>;
+    if (d === 0) return <span className="text-muted-foreground text-sm font-mono">{t("compare.same")}</span>;
     return (
       <span className={`text-sm font-mono font-semibold ${positive ? "text-risk-safe" : negative ? "text-risk-danger" : ""}`}>
         {d > 0 ? "+" : ""}{d}
@@ -213,10 +216,10 @@ const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord })
 
   return (
     <div className="rounded-xl bg-card border border-border p-5 mb-6" style={{ boxShadow: "var(--shadow-card)" }}>
-      <h3 className="font-display font-bold text-foreground mb-3 text-sm tracking-wide uppercase">Comparison Summary</h3>
+      <h3 className="font-display font-bold text-foreground mb-3 text-sm tracking-wide uppercase">{t("compare.summary")}</h3>
       <div className="grid grid-cols-3 gap-4 text-center">
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Safety Score</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("compare.safetyScore")}</p>
           <div className="flex items-center justify-center gap-2">
             <span className={`font-bold font-display text-lg ${riskColor(scanA.risk_score)}`}>{scanA.risk_score ?? "—"}</span>
             <span className="text-muted-foreground">vs</span>
@@ -225,7 +228,7 @@ const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord })
           <p className="mt-1">{fmtDiff(scoreDiff, false)}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground mb-1">High Risk Clauses</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("compare.highRiskClauses")}</p>
           <div className="flex items-center justify-center gap-2">
             <span className="font-bold font-display text-lg text-risk-danger">{countByRisk(clausesA, "danger")}</span>
             <span className="text-muted-foreground">vs</span>
@@ -234,7 +237,7 @@ const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord })
           <p className="mt-1">{fmtDiff(dangerDiff, true)}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Caution Clauses</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("compare.cautionClauses")}</p>
           <div className="flex items-center justify-center gap-2">
             <span className="font-bold font-display text-lg text-risk-caution">{countByRisk(clausesA, "caution")}</span>
             <span className="text-muted-foreground">vs</span>
@@ -249,6 +252,7 @@ const DiffSummary = ({ scanA, scanB }: { scanA: ScanRecord; scanB: ScanRecord })
 
 /* ── Main page ─────────────────────────────────── */
 const ComparisonPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [scans, setScans] = useState<ScanRecord[]>([]);
@@ -302,26 +306,26 @@ const ComparisonPage = () => {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to Dashboard
+          {t("compare.backToDashboard")}
         </button>
 
         <div className="mb-8">
-          <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-2">Side-by-Side</p>
+          <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{t("compare.eyebrow")}</p>
           <h1 className="text-3xl md:text-4xl font-black font-display leading-[1.1] tracking-tight mb-2">
-            Clause <em className="italic text-accent">Comparison</em>
+            {t("compare.title1")} <em className="italic text-accent">{t("compare.titleAccent")}</em>
           </h1>
           <p className="text-muted-foreground max-w-lg">
-            Select two contracts from your scan history to compare their risk profiles and clauses side-by-side.
+            {t("compare.subtitle")}
           </p>
         </div>
 
         {/* Selectors */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div>
-            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Contract A</label>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">{t("compare.contractA")}</label>
             <Select value={scanIdA} onValueChange={setScanIdA}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select first contract…" />
+                <SelectValue placeholder={t("compare.selectFirst")} />
               </SelectTrigger>
               <SelectContent>
                 {scans.filter((s) => s.id !== scanIdB).map((s) => (
@@ -339,10 +343,10 @@ const ComparisonPage = () => {
             </Select>
           </div>
           <div>
-            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Contract B</label>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">{t("compare.contractB")}</label>
             <Select value={scanIdB} onValueChange={setScanIdB}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select second contract…" />
+                <SelectValue placeholder={t("compare.selectSecond")} />
               </SelectTrigger>
               <SelectContent>
                 {scans.filter((s) => s.id !== scanIdA).map((s) => (
@@ -361,14 +365,14 @@ const ComparisonPage = () => {
           </div>
         </div>
 
-        {loading && <p className="text-center text-muted-foreground py-12">Loading scans…</p>}
+        {loading && <p className="text-center text-muted-foreground py-12">{t("compare.loadingScans")}</p>}
 
         {!loading && scans.length < 2 && (
           <div className="rounded-xl bg-card border border-border p-12 text-center" style={{ boxShadow: "var(--shadow-card)" }}>
             <ArrowLeftRight className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold font-display text-foreground mb-2">Need at least 2 scans</h3>
-            <p className="text-muted-foreground mb-6">Scan two or more contracts first to use the comparison tool.</p>
-            <Button variant="hero" onClick={() => navigate("/scan")}>Scan a Contract</Button>
+            <h3 className="text-lg font-semibold font-display text-foreground mb-2">{t("compare.needTwoScans")}</h3>
+            <p className="text-muted-foreground mb-6">{t("compare.needTwoScansDesc")}</p>
+            <Button variant="hero" onClick={() => navigate("/scan")}>{t("dashboard.scanContract")}</Button>
           </div>
         )}
 
@@ -378,12 +382,12 @@ const ComparisonPage = () => {
             <DiffSummary scanA={scanA} scanB={scanB} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">Contract A</h2>
-                <ClausePanel scan={scanA} sharedTitles={sharedTitles} clauseRefs={refsA} highlightedTitle={highlightedTitle} onSharedClick={(t) => jumpToMatch(t, refsB)} />
+                <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">{t("compare.contractA")}</h2>
+                <ClausePanel scan={scanA} sharedTitles={sharedTitles} clauseRefs={refsA} highlightedTitle={highlightedTitle} onSharedClick={(title) => jumpToMatch(title, refsB)} />
               </div>
               <div>
-                <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">Contract B</h2>
-                <ClausePanel scan={scanB} sharedTitles={sharedTitles} clauseRefs={refsB} highlightedTitle={highlightedTitle} onSharedClick={(t) => jumpToMatch(t, refsA)} />
+                <h2 className="text-sm font-mono uppercase tracking-wider text-muted-foreground mb-3">{t("compare.contractB")}</h2>
+                <ClausePanel scan={scanB} sharedTitles={sharedTitles} clauseRefs={refsB} highlightedTitle={highlightedTitle} onSharedClick={(title) => jumpToMatch(title, refsA)} />
               </div>
             </div>
           </>
@@ -392,7 +396,7 @@ const ComparisonPage = () => {
         {!loading && scans.length >= 2 && (!scanA || !scanB) && (
           <div className="rounded-xl border border-dashed border-border p-12 text-center">
             <ArrowLeftRight className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground">Select two contracts above to begin comparison.</p>
+            <p className="text-muted-foreground">{t("compare.selectTwoAbove")}</p>
           </div>
         )}
       </div>

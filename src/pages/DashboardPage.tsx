@@ -59,7 +59,7 @@ const DashboardPage = () => {
       if (error) throw error;
       await signOut();
       navigate("/");
-      toast.success("Your account has been permanently deleted.");
+      toast.success(t("dashboard.accountDeletedToast"));
     } catch (e: any) {
       toast.error(e?.message || "Failed to delete account. Please contact support.");
     } finally {
@@ -237,7 +237,7 @@ const DashboardPage = () => {
                     className="text-destructive hover:bg-destructive/10 gap-1.5 -mr-2"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span className="text-xs">Delete Account</span>
+                    <span className="text-xs">{t("dashboard.deleteAccountLabel")}</span>
                   </Button>
                 </div>
               </div>
@@ -354,16 +354,16 @@ const DashboardPage = () => {
       {/* Account Settings — always visible, required by Apple Guideline 5.1.1(v) */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
         <div className="max-w-xl">
-          <h2 className="text-lg font-display font-bold text-foreground mb-4">Account Settings</h2>
+          <h2 className="text-lg font-display font-bold text-foreground mb-4">{t("dashboard.accountSettings")}</h2>
           <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
             <div className="flex items-start gap-4">
               <div className="w-9 h-9 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Trash2 className="w-4 h-4 text-destructive" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-foreground text-sm mb-1">Delete Account</p>
+                <p className="font-semibold text-foreground text-sm mb-1">{t("dashboard.deleteAccountLabel")}</p>
                 <p className="text-xs text-muted-foreground mb-4">
-                  Permanently deletes your account and all associated scan history. This action cannot be undone.
+                  {t("dashboard.deleteAccountDesc")}
                 </p>
                 <Button
                   variant="destructive"
@@ -372,7 +372,7 @@ const DashboardPage = () => {
                   className="gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Delete My Account
+                  {t("dashboard.deleteMyAccount")}
                 </Button>
               </div>
             </div>
@@ -389,9 +389,9 @@ const DashboardPage = () => {
             <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
               <Trash2 className="w-5 h-5 text-destructive" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-2">Delete Account</h2>
+            <h2 className="text-lg font-bold text-foreground mb-2">{t("dashboard.deleteAccountLabel")}</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              This will permanently delete your account and all scan history. This action cannot be undone.
+              {t("dashboard.deleteConfirmDesc")}
             </p>
             <div className="flex flex-col gap-2">
               <Button
@@ -400,7 +400,7 @@ const DashboardPage = () => {
                 disabled={deletingAccount}
                 onClick={handleDeleteAccount}
               >
-                {deletingAccount ? "Deleting…" : "Yes, permanently delete my account"}
+                {deletingAccount ? t("dashboard.deleting") : t("dashboard.confirmDeleteAccount")}
               </Button>
               <Button
                 variant="ghost"
@@ -408,7 +408,7 @@ const DashboardPage = () => {
                 disabled={deletingAccount}
                 onClick={() => setShowDeleteConfirm(false)}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
             </div>
           </div>

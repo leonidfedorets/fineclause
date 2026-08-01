@@ -1,12 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FileSearch, LayoutDashboard, FileText, Info } from "lucide-react";
-
-const tabs = [
-  { to: "/scan",      icon: FileSearch,      label: "Scan" },
-  { to: "/dashboard", icon: LayoutDashboard, label: "My Scans" },
-  { to: "/careers",   icon: FileText,        label: "CV Check" },
-  { to: "/contact",   icon: Info,            label: "More" },
-];
+import { useTranslation } from "react-i18next";
 
 const fireHaptic = async () => {
   try {
@@ -16,8 +10,16 @@ const fireHaptic = async () => {
 };
 
 const MobileTabBar = () => {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  const tabs = [
+    { to: "/scan",      icon: FileSearch,      label: t("tabBar.scan") },
+    { to: "/dashboard", icon: LayoutDashboard, label: t("tabBar.myScans") },
+    { to: "/careers",   icon: FileText,        label: t("tabBar.cvCheck") },
+    { to: "/contact",   icon: Info,            label: t("tabBar.more") },
+  ];
 
   return (
     <nav

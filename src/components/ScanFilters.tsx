@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { Json } from "@/integrations/supabase/types";
+import { useTranslation } from "react-i18next";
 
 interface ScanRecord {
   id: string;
@@ -37,6 +38,7 @@ interface ScanFiltersProps {
 }
 
 const ScanFilters = ({ scans, children }: ScanFiltersProps) => {
+  const { t } = useTranslation();
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [riskFilter, setRiskFilter] = useState<string>("all");
@@ -116,7 +118,7 @@ const ScanFilters = ({ scans, children }: ScanFiltersProps) => {
               )}
             >
               <CalendarIcon className="w-3 h-3" />
-              {dateFrom ? format(dateFrom, "MMM d, yyyy") : "From"}
+              {dateFrom ? format(dateFrom, "MMM d, yyyy") : t("scanFilters.from")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -142,7 +144,7 @@ const ScanFilters = ({ scans, children }: ScanFiltersProps) => {
               )}
             >
               <CalendarIcon className="w-3 h-3" />
-              {dateTo ? format(dateTo, "MMM d, yyyy") : "To"}
+              {dateTo ? format(dateTo, "MMM d, yyyy") : t("scanFilters.to")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -159,13 +161,13 @@ const ScanFilters = ({ scans, children }: ScanFiltersProps) => {
         {/* Risk Filter */}
         <Select value={riskFilter} onValueChange={setRiskFilter}>
           <SelectTrigger className="h-8 w-[130px] text-xs">
-            <SelectValue placeholder="Risk Level" />
+            <SelectValue placeholder={t("scanFilters.riskLevel")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Risks</SelectItem>
-            <SelectItem value="high">High Risk (&lt;40)</SelectItem>
-            <SelectItem value="medium">Medium (40–69)</SelectItem>
-            <SelectItem value="low">Low Risk (70+)</SelectItem>
+            <SelectItem value="all">{t("scanFilters.allRisks")}</SelectItem>
+            <SelectItem value="high">{t("scanFilters.highRiskRange")}</SelectItem>
+            <SelectItem value="medium">{t("scanFilters.mediumRange")}</SelectItem>
+            <SelectItem value="low">{t("scanFilters.lowRiskRange")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -173,10 +175,10 @@ const ScanFilters = ({ scans, children }: ScanFiltersProps) => {
         {docTypes.length > 0 && (
           <Select value={docTypeFilter} onValueChange={setDocTypeFilter}>
             <SelectTrigger className="h-8 w-[150px] text-xs">
-              <SelectValue placeholder="Doc Type" />
+              <SelectValue placeholder={t("scanFilters.docType")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="all">{t("scanFilters.allTypes")}</SelectItem>
               {docTypes.map((t) => (
                 <SelectItem key={t} value={t}>
                   {t}
@@ -197,24 +199,24 @@ const ScanFilters = ({ scans, children }: ScanFiltersProps) => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="date-desc">Newest First</SelectItem>
-            <SelectItem value="date-asc">Oldest First</SelectItem>
-            <SelectItem value="risk_score-asc">Riskiest First</SelectItem>
-            <SelectItem value="risk_score-desc">Safest First</SelectItem>
-            <SelectItem value="file_name-asc">Name A–Z</SelectItem>
-            <SelectItem value="file_name-desc">Name Z–A</SelectItem>
+            <SelectItem value="date-desc">{t("scanFilters.newestFirst")}</SelectItem>
+            <SelectItem value="date-asc">{t("scanFilters.oldestFirst")}</SelectItem>
+            <SelectItem value="risk_score-asc">{t("scanFilters.riskiestFirst")}</SelectItem>
+            <SelectItem value="risk_score-desc">{t("scanFilters.safestFirst")}</SelectItem>
+            <SelectItem value="file_name-asc">{t("scanFilters.nameAZ")}</SelectItem>
+            <SelectItem value="file_name-desc">{t("scanFilters.nameZA")}</SelectItem>
           </SelectContent>
         </Select>
 
         {hasActiveFilters && (
           <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 text-muted-foreground" onClick={clearFilters}>
             <X className="w-3 h-3" />
-            Clear
+            {t("scanFilters.clear")}
           </Button>
         )}
 
         <span className="text-xs text-muted-foreground ml-auto">
-          {filtered.length} of {scans.length} scans
+          {t("scanFilters.countOfTotal", { filtered: filtered.length, total: scans.length })}
         </span>
       </div>
 
