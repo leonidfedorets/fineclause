@@ -54,5 +54,7 @@
 	<string>Required by the iOS camera system for document scanning. FineClause does not save photos to your library.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>FineClause uses Face ID to sign you in securely without a password.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
