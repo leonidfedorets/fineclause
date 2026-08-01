@@ -89,6 +89,7 @@ const Navbar = () => {
             <span className="font-display font-semibold text-base tracking-tight text-foreground">FineClause</span>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             {user && (
               <button
