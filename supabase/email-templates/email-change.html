@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm your new email – FineClause</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f0f4ff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-text-size-adjust: 100%; }
+    .wrapper { max-width: 580px; margin: 40px auto; padding: 0 16px 40px; }
+    .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(46,111,219,0.10); }
+    .header { background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%); padding: 40px 40px 36px; text-align: center; }
+    .logo-mark { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; background: rgba(255,255,255,0.18); border-radius: 14px; margin-bottom: 18px; }
+    .logo-f { color: #ffffff; font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+    .brand { color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-tagline { color: rgba(255,255,255,0.70); font-size: 13px; margin-top: 4px; }
+    .body { padding: 40px 40px 32px; }
+    .greeting { font-size: 24px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; margin-bottom: 12px; }
+    .text { font-size: 15px; line-height: 1.65; color: #475569; margin-bottom: 20px; }
+    .info-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 16px; margin-bottom: 24px; font-size: 13px; color: #0c4a6e; }
+    .btn-wrap { text-align: center; margin: 32px 0; }
+    .btn { display: inline-block; background: linear-gradient(135deg, #0369a1, #0284c7); color: #ffffff !important; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 36px; border-radius: 10px; letter-spacing: 0.1px; box-shadow: 0 4px 14px rgba(3,105,161,0.30); }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 28px 0; }
+    .link-box { background: #f8faff; border: 1px solid #dbeafe; border-radius: 8px; padding: 14px 16px; word-break: break-all; }
+    .link-label { font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .link-url { font-size: 12px; color: #1d4ed8; }
+    .footer { background: #f8faff; padding: 24px 40px; text-align: center; border-top: 1px solid #e2e8f0; }
+    .footer-text { font-size: 12px; color: #94a3b8; line-height: 1.7; }
+    .footer-link { color: #0369a1; text-decoration: none; }
+    @media (max-width: 480px) {
+      .body, .footer { padding-left: 24px; padding-right: 24px; }
+      .header { padding: 32px 24px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        <div class="logo-mark"><span class="logo-f">F</span></div>
+        <div class="brand">FineClause</div>
+        <div class="header-tagline">AI-powered contract &amp; career intelligence</div>
+      </div>
+      <div class="body">
+        <p class="greeting">Confirm your new email 📧</p>
+        <div class="info-box">
+          ℹ️ This confirmation was sent to your <strong>new</strong> email address. Your current email stays active until you confirm this one.
+        </div>
+        <p class="text">
+          You requested to change the email address on your FineClause account.
+          Click the button below to confirm and activate your new email.
+        </p>
+        <div class="btn-wrap">
+          <a href="{{ .ConfirmationURL }}" class="btn">Confirm new email →</a>
+        </div>
+        <p class="text" style="font-size:13px; color:#94a3b8; margin-bottom:8px;">Button not working? Use this link:</p>
+        <div class="link-box">
+          <p class="link-label">Confirmation link</p>
+          <p class="link-url">{{ .ConfirmationURL }}</p>
+        </div>
+        <hr class="divider" />
+        <p class="text" style="font-size:13px; margin-bottom:0;">
+          If you didn't request this change, please contact us immediately at <strong>support@fineclause.com</strong>.
+        </p>
+      </div>
+      <div class="footer">
+        <p class="footer-text">
+          © 2025 FineClause by <a class="footer-link" href="https://empatixtech.com">Empatixtech</a> · Rīga, Latvia<br/>
+          <a class="footer-link" href="https://www.fineclause.com/privacy">Privacy Policy</a> · <a class="footer-link" href="https://www.fineclause.com/terms">Terms of Service</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

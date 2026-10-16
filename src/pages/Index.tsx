@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { isMobileApp } from "@/lib/isMobileApp";
 import { Smartphone, Star } from "lucide-react";
 
-const APP_STORE_URL = "https://apps.apple.com/app/fineclause/id6744052240";
+const APP_STORE_URL = "https://apps.apple.com/app/fineclause/id6775821568";
 
 const Index = () => {
   const navigate = useNavigate();

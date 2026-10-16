@@ -121,6 +121,16 @@ test.describe("Signup page", () => {
     });
   });
 
+  test("shows friendly error when email already registered", async ({ page }) => {
+    await goToSignup(page);
+    // Use the dev Supabase project's pre-existing confirmed test account
+    await fillSignupForm(page, "leonidfedorets30@gmail.com", "Secure123!");
+    await page.getByRole("button", { name: /sign up|create|register/i }).click();
+    await expect(
+      page.getByText(/already exists|already registered|sign in/i).first()
+    ).toBeVisible({ timeout: 10000 });
+  });
+
   test("sign in link on signup page navigates to login", async ({ page }) => {
     await goToSignup(page);
     const link = page.locator('a[href*="login"]').first();

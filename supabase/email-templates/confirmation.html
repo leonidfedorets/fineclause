@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm your email – FineClause</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f0f4ff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-text-size-adjust: 100%; }
+    .wrapper { max-width: 580px; margin: 40px auto; padding: 0 16px 40px; }
+    .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(46,111,219,0.10); }
+
+    /* Header */
+    .header { background: linear-gradient(135deg, #1d4ed8 0%, #2e6fdb 60%, #4f46e5 100%); padding: 40px 40px 36px; text-align: center; }
+    .logo-mark { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; background: rgba(255,255,255,0.18); border-radius: 14px; margin-bottom: 18px; }
+    .logo-f { color: #ffffff; font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+    .brand { color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-tagline { color: rgba(255,255,255,0.70); font-size: 13px; margin-top: 4px; }
+
+    /* Body */
+    .body { padding: 40px 40px 32px; }
+    .greeting { font-size: 24px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; margin-bottom: 12px; }
+    .text { font-size: 15px; line-height: 1.65; color: #475569; margin-bottom: 20px; }
+    .highlight { color: #1d4ed8; font-weight: 600; }
+
+    /* Button */
+    .btn-wrap { text-align: center; margin: 32px 0; }
+    .btn { display: inline-block; background: linear-gradient(135deg, #1d4ed8, #4f46e5); color: #ffffff !important; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 36px; border-radius: 10px; letter-spacing: 0.1px; box-shadow: 0 4px 14px rgba(29,78,216,0.35); }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 28px 0; }
+
+    /* Link fallback */
+    .link-box { background: #f8faff; border: 1px solid #dbeafe; border-radius: 8px; padding: 14px 16px; word-break: break-all; }
+    .link-label { font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .link-url { font-size: 12px; color: #1d4ed8; }
+
+    /* Features strip */
+    .features { display: flex; gap: 0; margin: 28px 0 0; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .feature { flex: 1; padding: 16px 12px; text-align: center; border-right: 1px solid #e2e8f0; }
+    .feature:last-child { border-right: none; }
+    .feature-icon { font-size: 20px; margin-bottom: 6px; }
+    .feature-label { font-size: 11px; font-weight: 500; color: #64748b; line-height: 1.3; }
+
+    /* Footer */
+    .footer { background: #f8faff; padding: 24px 40px; text-align: center; border-top: 1px solid #e2e8f0; }
+    .footer-text { font-size: 12px; color: #94a3b8; line-height: 1.7; }
+    .footer-link { color: #1d4ed8; text-decoration: none; }
+
+    @media (max-width: 480px) {
+      .body, .footer { padding-left: 24px; padding-right: 24px; }
+      .header { padding: 32px 24px 28px; }
+      .features { flex-direction: column; }
+      .feature { border-right: none; border-bottom: 1px solid #e2e8f0; }
+      .feature:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-mark"><span class="logo-f">F</span></div>
+        <div class="brand">FineClause</div>
+        <div class="header-tagline">AI-powered contract &amp; career intelligence</div>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <p class="greeting">Confirm your email ✉️</p>
+        <p class="text">
+          You're one step away from protecting yourself from hidden contract clauses and getting smarter about your career.
+          Click the button below to confirm your email address and activate your free account.
+        </p>
+
+        <div class="btn-wrap">
+          <a href="{{ .ConfirmationURL }}" class="btn">Confirm my email →</a>
+        </div>
+
+        <p class="text" style="font-size:13px; color:#94a3b8; margin-bottom:0;">
+          Button not working? Copy and paste this link into your browser:
+        </p>
+        <div class="link-box">
+          <p class="link-label">Confirmation link</p>
+          <p class="link-url">{{ .ConfirmationURL }}</p>
+        </div>
+
+        <hr class="divider" />
+
+        <p class="text" style="margin-bottom:0; font-size:14px;">
+          With your free account you get:
+        </p>
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">📄</div>
+            <div class="feature-label">AI contract<br/>analysis</div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-label">CV score &amp;<br/>salary range</div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-label">150+ clause<br/>types detected</div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📱</div>
+            <div class="feature-label">iOS app<br/>included</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-text">
+          This link expires in 24 hours. If you didn't create a FineClause account, you can safely ignore this email.<br/>
+          © 2025 FineClause by <a class="footer-link" href="https://empatixtech.com">Empatixtech</a> · Pērnavas iela 21-22, Rīga, LV-1009<br/>
+          <a class="footer-link" href="https://www.fineclause.com/privacy">Privacy Policy</a> · <a class="footer-link" href="https://www.fineclause.com/terms">Terms of Service</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
