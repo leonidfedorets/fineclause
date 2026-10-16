@@ -64,18 +64,33 @@ const SignupPage = () => {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: getAuthRedirectUrl() },
     });
     setLoading(false);
+
     if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success(t("auth.checkEmail"));
-      navigate("/login");
+      const isExisting = /already registered|already exists|user already/i.test(error.message);
+      if (isExisting) {
+        toast.error("An account with this email already exists. Please sign in or reset your password.");
+      } else {
+        toast.error(error.message);
+      }
+      return;
     }
+
+    // Supabase silently succeeds but returns no identities when the email is
+    // already registered (prevents enumeration). Show a friendly message.
+    if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+      toast.error("An account with this email already exists. Please sign in or reset your password.");
+      navigate("/login");
+      return;
+    }
+
+    toast.success(t("auth.checkEmail"));
+    navigate("/login");
   };
 
   const handleAgencyRegister = async () => {
@@ -89,12 +104,18 @@ const SignupPage = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: { emailRedirectTo: getAuthRedirectUrl() },
       });
-      if (error) throw error;
+      if (error) {
+        const isExisting = /already registered|already exists|user already/i.test(error.message);
+        throw new Error(isExisting ? "An account with this email already exists. Please sign in." : error.message);
+      }
+      if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+        throw new Error("An account with this email already exists. Please sign in.");
+      }
       setContactEmail(email.trim());
       setAgencyStep("details");
       toast.success("Account created! Check your email to verify, then complete your agency profile.");

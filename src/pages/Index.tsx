@@ -12,6 +12,9 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { isMobileApp } from "@/lib/isMobileApp";
+import { Smartphone, Star } from "lucide-react";
+
+const APP_STORE_URL = "https://apps.apple.com/app/fineclause/id6744052240";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -31,6 +34,50 @@ const Index = () => {
 
         <TestimonialsSection />
         <FAQSection />
+
+        {/* iOS App Banner — web only */}
+        {!mobile && (
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900"
+          >
+            <div className="absolute inset-0 dot-grid opacity-5 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative max-w-7xl mx-auto px-6 md:px-10 py-16 flex flex-col md:flex-row items-center justify-between gap-10">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                  <Smartphone className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <p className="text-white/50 text-xs font-semibold tracking-widest uppercase mb-1">Now available</p>
+                  <h2 className="text-2xl font-bold font-display text-white leading-tight mb-1">FineClause for iPhone</h2>
+                  <p className="text-white/60 text-sm max-w-sm">Scan contracts on the go — AI-powered analysis in your pocket, free.</p>
+                  <div className="flex items-center gap-1 mt-2">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                    <span className="text-white/40 text-xs ml-1">on the App Store</span>
+                  </div>
+                </div>
+              </div>
+              <a
+                href={APP_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                  alt="Download on the App Store"
+                  className="h-12 hover:opacity-90 transition-opacity"
+                />
+              </a>
+            </div>
+          </motion.section>
+        )}
 
         {/* CTA Banner — hidden in the mobile app (Apple 3.1.1: no "free trial / no credit card" sign-up prompts) */}
         {!mobile && (
