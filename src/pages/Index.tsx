@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
@@ -25,6 +26,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>FineClause — AI Contract Scanner & Career Intelligence</title>
+        <meta name="description" content="Instantly scan contracts for risky clauses, benchmark your salary, and analyse your CV with AI. Free to try — no legal degree required." />
+      </Helmet>
       <Navbar />
       <div className="pt-16">
         <HeroSection />

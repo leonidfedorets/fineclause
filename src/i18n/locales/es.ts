@@ -375,7 +375,7 @@ export default {
       step2Title: "Análisis de IA",
       step2Desc: "Nuestro motor puntúa tu CV, estima el salario e identifica las brechas de habilidades.",
       step3Title: "Recibe tu Informe",
-      step3Desc: "Comparte tu informe PDF detallado por AirDrop, Telegram o cualquier otra aplicación.",
+      step3Desc: "Descarga tu informe PDF detallado o compártelo por correo electrónico, enlace de descarga o cualquier aplicación.",
       ctaTitle1: "Deja de adivinar.",
       ctaTitle2: "Empieza a saber.",
       ctaDesc: "Únete a miles de buscadores de empleo que ya han descubierto su verdadero valor de mercado con nuestro análisis de CV gratuito impulsado por IA.",

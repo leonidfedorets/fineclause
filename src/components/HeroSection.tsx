@@ -30,24 +30,16 @@ const HeroSection = () => {
       {/* Main Hero */}
       <div className="relative max-w-7xl mx-auto px-6 md:px-10 pt-28 pb-0">
         {/* Top badge */}
-        <motion.div
-          className="flex justify-center mb-8"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="flex justify-center mb-8">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/20 bg-accent/6 text-accent text-xs font-semibold tracking-wide">
             <Sparkles className="w-3 h-3" />
             AI-powered legal intelligence platform
           </span>
-        </motion.div>
+        </div>
 
         {/* Headline */}
-        <motion.h1
+        <h1
           className="text-center text-4xl md:text-5xl lg:text-[64px] font-bold font-display leading-[1.06] tracking-tight text-foreground max-w-4xl mx-auto mb-6"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
         >
           {t("hero.title1")}{" "}
           <span className="relative inline-block">
@@ -58,24 +50,16 @@ const HeroSection = () => {
           </span>
           <br />
           {t("hero.title2")}
-        </motion.h1>
+        </h1>
 
-        <motion.p
+        <p
           className="text-center text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
         >
           {t("hero.description")}
-        </motion.p>
+        </p>
 
         {/* CTA buttons */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
           <button
             onClick={() => navigate("/scan")}
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-all hover:shadow-[0_8px_32px_hsl(221_83%_53%/0.35)] active:scale-[0.98] group"
@@ -89,29 +73,21 @@ const HeroSection = () => {
           >
             {t("hero.seeHow")}
           </button>
-        </motion.div>
+        </div>
 
         {/* Trust indicators */}
-        <motion.div
-          className="flex flex-wrap items-center justify-center gap-6 mb-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
-        >
+        <div className="flex flex-wrap items-center justify-center gap-6 mb-16">
           {trustItems.map((item) => (
             <div key={item.text} className="flex items-center gap-2 text-xs text-muted-foreground">
               <item.icon className="w-3.5 h-3.5 text-accent" />
               <span className="font-medium">{item.text}</span>
             </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Stats bar */}
-        <motion.div
+        <div
           className="flex flex-wrap items-center justify-center gap-10 py-8 border-y border-border mb-0"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
         >
           {[
             { num: "12k+", label: t("hero.docsAnalyzed") },
@@ -124,7 +100,7 @@ const HeroSection = () => {
               <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">{s.label}</span>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Product cards — two columns */}
@@ -153,9 +129,9 @@ const HeroSection = () => {
               </div>
 
               <h2 className="text-2xl md:text-3xl font-bold font-display leading-tight mb-3 text-foreground">
-                {t("hero.title1")}{" "}
-                <em className="not-italic text-accent">{t("hero.titleAccent")}</em>
-                <br />{t("hero.title2")}
+                AI Contract Analysis
+                <br />
+                <em className="not-italic text-accent">& Risk Detection</em>
               </h2>
 
               <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-sm">

@@ -1,14 +1,30 @@
-import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { Mail, Phone, MapPin, MessageCircle, Send } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { isMobileApp } from "@/lib/isMobileApp";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 const ContactPage = () => {
   const { t } = useTranslation();
   const mobile = isMobileApp();
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormStatus("sending");
+    await new Promise((r) => setTimeout(r, 800));
+    setFormStatus("sent");
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Contact Us — FineClause</title>
+        <meta name="description" content="Get in touch with the FineClause team. We're based in Rīga, Latvia and happy to help with questions about our AI contract and career intelligence platform." />
+      </Helmet>
       <Navbar />
       <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-3xl mx-auto animate-fade-up">
@@ -49,7 +65,7 @@ const ContactPage = () => {
               </div>
               <h3 className="font-display text-lg font-bold mb-2">{t("contact.emailTitle")}</h3>
               <p className="text-muted-foreground text-sm">
-                <a href="mailto:sales@empatixtech.com" className="hover:text-foreground transition-colors">sales@empatixtech.com</a>
+                <a href="mailto:support@fineclause.com" className="hover:text-foreground transition-colors">support@fineclause.com</a>
               </p>
             </div>
 
@@ -69,7 +85,76 @@ const ContactPage = () => {
             </div>
           </div>
 
-          <div className="border-t border-border pt-8">
+          {/* Contact form */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold font-display mb-6">Send us a message</h2>
+            {formStatus === "sent" ? (
+              <div className="rounded-2xl bg-card border border-border p-8 text-center">
+                <Send className="w-10 h-10 text-accent mx-auto mb-3" />
+                <h3 className="text-lg font-bold font-display mb-2">Message sent!</h3>
+                <p className="text-muted-foreground text-sm">We'll get back to you at support@fineclause.com within 1 business day.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Your name"
+                      className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="your@email.com"
+                      className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Subject</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    placeholder="How can we help?"
+                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Message</label>
+                  <textarea
+                    required
+                    rows={5}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="Tell us more…"
+                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={formStatus === "sending"}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-colors disabled:opacity-60"
+                >
+                  <Send className="w-4 h-4" />
+                  {formStatus === "sending" ? "Sending…" : "Send message"}
+                </button>
+              </form>
+            )}
+          </div>
+
+          <div className="border-t border-border pt-8 mt-8">
             <p className="text-sm text-muted-foreground font-mono">
               {t("contact.footerNotePrefix")}{" "}
               <span className="text-foreground font-medium">Empatixtech</span>

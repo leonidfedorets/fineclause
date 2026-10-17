@@ -15,12 +15,12 @@ const Footer = () => {
       links: mobile
         ? [
             { label: "Contract Scanner", to: "/scan" },
-            { label: "Analytics", to: "/dashboard" },
+            { label: "Dashboard", to: "/dashboard" },
           ]
         : [
             { label: "Contract Scanner", to: "/scan" },
             { label: "Templates", to: "/templates" },
-            { label: "Analytics", to: "/dashboard" },
+            { label: "Dashboard", to: "/dashboard" },
             { label: "Invoices", to: "/invoices" },
           ],
     },
@@ -30,7 +30,6 @@ const Footer = () => {
         ? [{ label: "CV Analysis", to: "/careers" }]
         : [
             { label: "CV Analysis", to: "/careers" },
-            { label: "Job Matching", to: "/careers" },
             { label: "For Employers", to: "/employers" },
             { label: "Recruiter Dashboard", to: "/recruiter" },
           ],
@@ -77,7 +76,7 @@ const Footer = () => {
             {/* Social icons */}
             <div className="flex items-center gap-2">
               <a
-                href="mailto:sales@empatixtech.com"
+                href="mailto:support@fineclause.com"
                 aria-label="Email"
                 className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/20 hover:bg-muted/50 transition-all"
               >

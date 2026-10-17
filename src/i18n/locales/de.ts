@@ -375,7 +375,7 @@ export default {
       step2Title: "KI-Analyse",
       step2Desc: "Unsere Engine bewertet Ihren Lebenslauf, schätzt das Gehalt und identifiziert Fähigkeitenlücken.",
       step3Title: "Erhalten Sie Ihren Bericht",
-      step3Desc: "Teilen Sie Ihren detaillierten PDF-Bericht per AirDrop, Telegram oder jeder anderen App.",
+      step3Desc: "Laden Sie Ihren detaillierten PDF-Bericht herunter oder teilen Sie ihn per E-Mail, Download-Link oder mit jeder anderen App.",
       ctaTitle1: "Nicht mehr raten.",
       ctaTitle2: "Wissen beginnen.",
       ctaDesc: "Schließen Sie sich Tausenden von Arbeitssuchenden an, die bereits ihren wahren Marktwert mit unserer kostenlosen KI-gestützten Lebenslauf-Analyse entdeckt haben.",

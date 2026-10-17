@@ -375,7 +375,7 @@ export default {
       step2Title: "Analyse AI",
       step2Desc: "Notre moteur évalue votre CV, estime le salaire et identifie les lacunes en compétences.",
       step3Title: "Obtenez votre rapport",
-      step3Desc: "Partagez votre rapport PDF détaillé via AirDrop, Telegram ou toute autre application.",
+      step3Desc: "Téléchargez votre rapport PDF détaillé ou partagez-le par e-mail, lien de téléchargement ou toute autre application.",
       ctaTitle1: "Arrêtez de deviner.",
       ctaTitle2: "Commencez à savoir.",
       ctaDesc: "Rejoignez des milliers de demandeurs d'emploi qui ont déjà découvert leur véritable valeur marchande grâce à notre analyse de CV gratuite basée sur l'IA.",

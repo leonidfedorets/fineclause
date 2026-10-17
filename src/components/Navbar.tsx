@@ -159,12 +159,14 @@ const Navbar = () => {
     </>
   ) : (
     <>
-      <NavDropdown label={t("nav.groupDocScan")} icon={<FileSearch className="w-3.5 h-3.5" />} active={location.pathname === "/scan"}>
-        <DropdownLink to="/scan" onClick={close}>{t("nav.scan")}</DropdownLink>
-      </NavDropdown>
-      <NavDropdown label={t("nav.groupCareer")} icon={<Briefcase className="w-3.5 h-3.5" />} active={location.pathname === "/careers"}>
-        <DropdownLink to="/careers" onClick={close}>{t("nav.careers")}</DropdownLink>
-      </NavDropdown>
+      <Link to="/scan" className={`flex items-center gap-1.5 text-sm font-medium transition-colors px-1 py-1 rounded-md ${location.pathname === "/scan" ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}>
+        <FileSearch className="w-3.5 h-3.5" />
+        {t("nav.scan")}
+      </Link>
+      <Link to="/careers" className={`flex items-center gap-1.5 text-sm font-medium transition-colors px-1 py-1 rounded-md ${location.pathname === "/careers" ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}>
+        <Briefcase className="w-3.5 h-3.5" />
+        {t("nav.careers")}
+      </Link>
       {!isMobile && (
         <NavDropdown label={t("nav.groupBusiness")} icon={<FileText className="w-3.5 h-3.5" />} active={businessPaths.some(p => location.pathname.startsWith(p))}>
           <DropdownLink to="/invoices" onClick={close}>{t("nav.invoices")}</DropdownLink>
@@ -188,6 +190,14 @@ const Navbar = () => {
   );
 
   return (
+    <>
+    {mobileOpen && (
+      <div
+        className="fixed inset-0 bg-black/50 z-[49] md:hidden"
+        onClick={close}
+        aria-hidden="true"
+      />
+    )}
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled
         ? "bg-card/90 backdrop-blur-xl border-b border-border shadow-[0_1px_0_hsl(var(--border))]"
@@ -268,6 +278,7 @@ const Navbar = () => {
         </div>
       )}
     </nav>
+    </>
   );
 };
 

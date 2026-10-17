@@ -375,7 +375,7 @@ export default {
       step2Title: "AI Analysis",
       step2Desc: "Our engine scores your CV, estimates salary, and identifies skill gaps.",
       step3Title: "Get Your Report",
-      step3Desc: "Share your detailed PDF report via AirDrop, Telegram, or any app.",
+      step3Desc: "Download your detailed PDF report or share it via email, download link, or any app.",
       ctaTitle1: "Stop Guessing.",
       ctaTitle2: "Start Knowing.",
       ctaDesc: "Join thousands of job seekers who've already discovered their true market value with our free AI-powered CV analysis.",

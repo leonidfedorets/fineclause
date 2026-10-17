@@ -375,7 +375,7 @@ export default {
       step2Title: "Analiza AI",
       step2Desc: "Nasz silnik ocenia Twoje CV, szacuje wynagrodzenie i identyfikuje luki w umiejętnościach.",
       step3Title: "Pobierz swój raport",
-      step3Desc: "Udostępnij swój szczegółowy raport PDF przez AirDrop, Telegram lub dowolną aplikację.",
+      step3Desc: "Pobierz swój szczegółowy raport PDF lub udostępnij go e-mailem, linkiem do pobrania lub dowolną aplikacją.",
       ctaTitle1: "Przestań zgadywać.",
       ctaTitle2: "Zacznij wiedzieć.",
       ctaDesc: "Dołącz do tysięcy poszukujących pracy, którzy już odkryli swoją prawdziwą wartość rynkową dzięki naszej bezpłatnej analizie CV opartej na AI.",

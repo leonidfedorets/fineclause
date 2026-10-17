@@ -375,7 +375,7 @@ export default {
       step2Title: "AI analīze",
       step2Desc: "Mūsu dzinējs novērtē jūsu CV, aplēš algu un identificē prasmju trūkumus.",
       step3Title: "Saņemiet savu ziņojumu",
-      step3Desc: "Kopīgojiet savu detalizēto PDF ziņojumu, izmantojot AirDrop, Telegram vai jebkuru citu lietotni.",
+      step3Desc: "Lejupielādējiet savu detalizēto PDF ziņojumu vai kopīgojiet to pa e-pastu, lejupielādes saiti vai ar jebkuru citu lietotni.",
       ctaTitle1: "Pārtrauciet minēt.",
       ctaTitle2: "Sāciet zināt.",
       ctaDesc: "Pievienojieties tūkstošiem darba meklētāju, kuri jau ir atklājuši savu patieso tirgus vērtību ar mūsu bezmaksas AI darbinātu CV analīzi.",

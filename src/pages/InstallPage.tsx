@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Smartphone, Share, MoreVertical, CheckCircle, ArrowLeft } from "lucide-react";
+import { Download, Smartphone, Share, MoreVertical, CheckCircle, ArrowLeft, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -55,6 +55,28 @@ const InstallPage = () => {
           <p className="text-muted-foreground">
             Add FineClause to your home screen for instant access, offline viewing of past scans, and a native app experience.
           </p>
+        </div>
+
+        {/* App Store section — always shown */}
+        <div className="rounded-2xl bg-card border border-border p-6 mb-6" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center">
+              <Apple className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold font-display text-foreground">Available on the App Store</h3>
+              <p className="text-xs text-muted-foreground">Native iPhone & iPad app</p>
+            </div>
+          </div>
+          <a
+            href="https://apps.apple.com/app/fineclause/id6775821568"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-black text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors"
+          >
+            <Apple className="w-4 h-4" />
+            Download on the App Store
+          </a>
         </div>
 
         {installed ? (

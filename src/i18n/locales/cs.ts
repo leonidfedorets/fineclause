@@ -375,7 +375,7 @@ export default {
       step2Title: "AI analýza",
       step2Desc: "Náš engine hodnotí váš životopis, odhaduje plat a identifikuje mezery v dovednostech.",
       step3Title: "Získejte zprávu",
-      step3Desc: "Sdílejte svou podrobnou PDF zprávu přes AirDrop, Telegram nebo jakoukoli jinou aplikaci.",
+      step3Desc: "Stáhněte si podrobný PDF report nebo jej sdílejte e-mailem, odkazem ke stažení nebo jakoukoli jinou aplikací.",
       ctaTitle1: "Přestaňte hádat.",
       ctaTitle2: "Začněte vědět.",
       ctaDesc: "Připojte se k tisícům uchazečů, kteří již objevili svou skutečnou tržní hodnotu s naší bezplatnou AI analýzou životopisu.",

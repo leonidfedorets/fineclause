@@ -66,8 +66,14 @@ const SharedReportPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex items-center justify-center" style={{ minHeight: "calc(100vh - 4rem)" }}>
+          <div className="text-center">
+            <div className="animate-spin w-10 h-10 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground">Loading shared report…</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -79,7 +85,21 @@ const SharedReportPage = () => {
         <div className="container mx-auto px-4 pt-24 pb-16 text-center">
           <Shield className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
           <h1 className="text-2xl font-bold font-display mb-3">{error || "Report not found"}</h1>
-          <p className="text-muted-foreground">This link may have expired or been revoked by the owner.</p>
+          <p className="text-muted-foreground mb-8">This link may have expired or been revoked by the owner.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href="/signup"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-colors"
+            >
+              Try FineClause free
+            </a>
+            <a
+              href="/"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-border text-foreground text-sm font-medium hover:bg-muted/50 transition-colors"
+            >
+              Learn more
+            </a>
+          </div>
         </div>
         <Footer />
       </div>

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { isMobileApp } from "@/lib/isMobileApp";
@@ -217,6 +218,10 @@ const CareersPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>CV Analysis & Career Intelligence — FineClause</title>
+        <meta name="description" content="Upload your CV for an AI-powered analysis: CV score, salary benchmarks, skill gaps, and matched job opportunities. Free and GDPR-compliant." />
+      </Helmet>
       <Navbar />
       <div className="pt-16">
         {/* Hero Section */}
