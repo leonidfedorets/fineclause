@@ -56,14 +56,46 @@ function scoreColor(score: number): [number, number, number] {
   return C.danger;
 }
 
+async function fetchFontBase64(url: string): Promise<string> {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.byteLength; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+// Cache loaded fonts to avoid re-fetching on every PDF generation
+const fontCache: Record<string, string> = {};
+
+async function registerNotoSans(doc: jsPDF): Promise<void> {
+  const fonts = [
+    { file: "/fonts/NotoSans-Regular.ttf", name: "NotoSans", style: "normal" },
+    { file: "/fonts/NotoSans-Bold.ttf", name: "NotoSans", style: "bold" },
+    { file: "/fonts/NotoSans-Italic.ttf", name: "NotoSans", style: "italic" },
+  ];
+
+  for (const { file, name, style } of fonts) {
+    if (!fontCache[file]) {
+      fontCache[file] = await fetchFontBase64(file);
+    }
+    const fileName = file.split("/").pop()!;
+    doc.addFileToVFS(fileName, fontCache[file]);
+    doc.addFont(fileName, name, style);
+  }
+}
+
 function addPageHeader(doc: jsPDF, W: number, margin: number) {
   doc.setFillColor(...C.dark);
   doc.rect(0, 0, W, 22, "F");
   doc.setTextColor(...C.white);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(13);
   doc.text("FineClause", margin, 10);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(7);
   doc.setTextColor(170, 170, 180);
   doc.text("AI Contract Risk Analysis", margin, 17);
@@ -72,7 +104,7 @@ function addPageHeader(doc: jsPDF, W: number, margin: number) {
 }
 
 function addPageFooter(doc: jsPDF, W: number, margin: number, page: number, total: number) {
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(...C.muted);
   doc.text(
@@ -101,12 +133,14 @@ export async function generateScanPDF(
   const margin = 16;
   const cw = W - 2 * margin; // content width
 
+  await registerNotoSans(doc);
+
   addPageHeader(doc, W, margin);
   let y = 30;
 
   // Document name
   doc.setTextColor(...C.dark);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(13);
   const nameLines = doc.splitTextToSize(fileName.replace(/\.[^.]+$/, ""), cw - 45);
   doc.text(nameLines, margin, y);
@@ -118,7 +152,7 @@ export async function generateScanPDF(
     const bw = doc.getTextWidth(badge) + 8;
     doc.rect(margin, y, bw, 6.5, "F");
     doc.setTextColor(...C.white);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("NotoSans", "bold");
     doc.setFontSize(7);
     doc.text(badge, margin + 4, y + 4.5);
     y += 11;
@@ -132,11 +166,11 @@ export async function generateScanPDF(
     doc.rect(margin, y, cw, 22, "FD");
 
     // Score number
-    doc.setFont("helvetica", "bold");
+    doc.setFont("NotoSans", "bold");
     doc.setFontSize(26);
     doc.setTextColor(...sc);
     doc.text(String(riskScore), margin + 8, y + 15);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("NotoSans", "normal");
     doc.setFontSize(7);
     doc.setTextColor(...C.muted);
     doc.text("/100 Risk Score", margin + 8, y + 20);
@@ -150,7 +184,7 @@ export async function generateScanPDF(
     const dC = result.clauses.filter(c => c.risk === "danger").length;
     const caC = result.clauses.filter(c => c.risk === "caution").length;
     const sC = result.clauses.filter(c => c.risk === "safe").length;
-    doc.setFont("helvetica", "bold");
+    doc.setFont("NotoSans", "bold");
     doc.setFontSize(8);
     doc.setTextColor(...C.danger);
     doc.text(`${dC} High Risk`, bx, by - 2);
@@ -173,12 +207,12 @@ export async function generateScanPDF(
   // Summary
   doc.setFillColor(...C.accent);
   doc.rect(margin, y, cw, 6, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(8);
   doc.setTextColor(...C.white);
   doc.text("  DOCUMENT SUMMARY", margin, y + 4.2);
   y += 8;
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...C.dark);
   const sumLines = doc.splitTextToSize(result.summary, cw);
@@ -188,7 +222,7 @@ export async function generateScanPDF(
   // Clauses header
   doc.setFillColor(...C.dark);
   doc.rect(margin, y, cw, 6, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(8);
   doc.setTextColor(...C.white);
   doc.text(`  CLAUSE BREAKDOWN  (${result.clauses.length} clauses)`, margin, y + 4.2);
@@ -212,13 +246,13 @@ export async function generateScanPDF(
     doc.setFillColor(...rc);
     doc.rect(W - margin - badgeW, y - 1, badgeW, 6, "F");
     doc.setTextColor(...C.white);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("NotoSans", "bold");
     doc.setFontSize(6.5);
     doc.text(badgeLabel, W - margin - badgeW + 4, y + 3.5);
 
     // Clause title
     doc.setTextColor(...C.dark);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("NotoSans", "bold");
     doc.setFontSize(10);
     doc.text(`${i + 1}.  ${clause.title}`, margin + 4, y + 3.5);
     y += 8;
@@ -230,7 +264,7 @@ export async function generateScanPDF(
       const exH = exLines.length * 4 + 4;
       doc.setFillColor(242, 242, 248);
       doc.rect(margin + 4, y, cw - 4, exH, "F");
-      doc.setFont("helvetica", "italic");
+      doc.setFont("NotoSans", "italic");
       doc.setFontSize(7.5);
       doc.setTextColor(80, 80, 100);
       doc.text(exLines, margin + 6, y + 3.5);
@@ -238,7 +272,7 @@ export async function generateScanPDF(
     }
 
     // Explanation
-    doc.setFont("helvetica", "normal");
+    doc.setFont("NotoSans", "normal");
     doc.setFontSize(8.5);
     doc.setTextColor(...C.dark);
     const expLines = doc.splitTextToSize(clause.explanation, cw - 4);
@@ -253,11 +287,11 @@ export async function generateScanPDF(
       doc.setFillColor(...C.altGreen);
       doc.setDrawColor(150, 210, 160);
       doc.rect(margin + 4, y, cw - 4, altH, "FD");
-      doc.setFont("helvetica", "bold");
+      doc.setFont("NotoSans", "bold");
       doc.setFontSize(7.5);
       doc.setTextColor(30, 120, 60);
-      doc.text("Suggested Alternative:", margin + 7, y + 4.5);
-      doc.setFont("helvetica", "normal");
+      doc.text(">> SUGGESTED ALTERNATIVE", margin + 7, y + 4.5);
+      doc.setFont("NotoSans", "normal");
       doc.text(altLines, margin + 7, y + 9);
       y += altH + 4;
     }
@@ -290,14 +324,16 @@ export async function generateCVPDF(
   const margin = 16;
   const cw = W - 2 * margin;
 
+  await registerNotoSans(doc);
+
   // Custom header for CV
   doc.setFillColor(...C.dark);
   doc.rect(0, 0, W, 22, "F");
   doc.setTextColor(...C.white);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(13);
   doc.text("FineClause", margin, 10);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(7);
   doc.setTextColor(170, 170, 180);
   doc.text("CV Analysis Report", margin, 17);
@@ -308,7 +344,7 @@ export async function generateCVPDF(
 
   // CV name
   doc.setTextColor(...C.dark);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(13);
   const nameLines = doc.splitTextToSize(fileName.replace(/\.[^.]+$/, ""), cw);
   doc.text(nameLines, margin, y);
@@ -323,11 +359,11 @@ export async function generateCVPDF(
   doc.setFillColor(...C.light);
   doc.setDrawColor(...C.border);
   doc.rect(margin, y, cw / 3 - 3, cardH, "FD");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(28);
   doc.setTextColor(...sc);
   doc.text(String(analysis.score), margin + 4, y + 18);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(7);
   doc.setTextColor(...C.muted);
   doc.text("CV SCORE", margin + 4, y + 24);
@@ -335,7 +371,7 @@ export async function generateCVPDF(
   const slW = doc.getTextWidth(scoreLabel) + 6;
   doc.rect(margin + 4, y + 5, slW, 5.5, "F");
   doc.setTextColor(...C.white);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(6.5);
   doc.text(scoreLabel, margin + 7, y + 9);
 
@@ -345,12 +381,12 @@ export async function generateCVPDF(
   doc.setFillColor(...C.light);
   doc.setDrawColor(...C.border);
   doc.rect(card2X, y, card2W, cardH, "FD");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(11);
   doc.setTextColor(...C.dark);
   const salStr = `€${Math.round(analysis.salary_min / 1000)}k–€${Math.round(analysis.salary_max / 1000)}k`;
   doc.text(salStr, card2X + 4, y + 14);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(7);
   doc.setTextColor(...C.muted);
   doc.text("SALARY RANGE", card2X + 4, y + 20);
@@ -362,11 +398,11 @@ export async function generateCVPDF(
   doc.setFillColor(...C.light);
   doc.setDrawColor(...C.border);
   doc.rect(card3X, y, card3W, cardH, "FD");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(14);
   doc.setTextColor(...C.dark);
   doc.text(`${analysis.experience_years}yrs`, card3X + 4, y + 12);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(7);
   doc.setTextColor(...C.muted);
   doc.text(analysis.experience_level.toUpperCase(), card3X + 4, y + 18);
@@ -386,12 +422,12 @@ export async function generateCVPDF(
   // Summary
   doc.setFillColor(...C.accent);
   doc.rect(margin, y, cw, 6, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(8);
   doc.setTextColor(...C.white);
   doc.text("  PROFILE SUMMARY", margin, y + 4.2);
   y += 8;
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...C.dark);
   const sumLines = doc.splitTextToSize(analysis.summary, cw);
@@ -399,7 +435,7 @@ export async function generateCVPDF(
   y += sumLines.length * 4.8 + 5;
 
   if (analysis.trajectory) {
-    doc.setFont("helvetica", "italic");
+    doc.setFont("NotoSans", "italic");
     doc.setFontSize(8);
     doc.setTextColor(...C.muted);
     const tLines = doc.splitTextToSize(`Career Trajectory: ${analysis.trajectory}`, cw - 4);
@@ -413,7 +449,7 @@ export async function generateCVPDF(
   // Present skills
   doc.setFillColor(34, 160, 70);
   doc.rect(margin, y, halfW, 6, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(8);
   doc.setTextColor(...C.white);
   doc.text("  YOUR SKILLS", margin, y + 4.2);
@@ -429,7 +465,7 @@ export async function generateCVPDF(
   let rY = skillsStartY;
 
   // Skills pills (left column)
-  doc.setFont("helvetica", "normal");
+  doc.setFont("NotoSans", "normal");
   doc.setFontSize(8);
   const skillsPerRow = 2;
   const pillW = (halfW - (skillsPerRow - 1) * 3) / skillsPerRow;
@@ -443,7 +479,7 @@ export async function generateCVPDF(
     doc.setDrawColor(140, 200, 155);
     doc.rect(px, py, pillW, 5.5, "FD");
     doc.setTextColor(30, 100, 50);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("NotoSans", "normal");
     doc.setFontSize(7);
     const skillText = skill.length > 15 ? skill.slice(0, 14) + "…" : skill;
     doc.text(skillText, px + 2, py + 3.8);
@@ -460,7 +496,7 @@ export async function generateCVPDF(
     doc.setDrawColor(210, 170, 60);
     doc.rect(px, py, pillW, 5.5, "FD");
     doc.setTextColor(120, 85, 0);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("NotoSans", "normal");
     doc.setFontSize(7);
     const skillText = skill.length > 15 ? skill.slice(0, 14) + "…" : skill;
     doc.text(skillText, px + 2, py + 3.8);
@@ -473,7 +509,7 @@ export async function generateCVPDF(
   if (y > 230) { doc.addPage(); y = 28; }
   doc.setFillColor(...C.dark);
   doc.rect(margin, y, cw, 6, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("NotoSans", "bold");
   doc.setFontSize(8);
   doc.setTextColor(...C.white);
   doc.text("  TOP IMPROVEMENTS", margin, y + 4.2);
@@ -486,11 +522,11 @@ export async function generateCVPDF(
     doc.setFillColor(...C.light);
     doc.setDrawColor(...C.border);
     doc.rect(margin, y, cw, bh, "FD");
-    doc.setFont("helvetica", "bold");
+    doc.setFont("NotoSans", "bold");
     doc.setFontSize(8);
     doc.setTextColor(...C.accent);
     doc.text(String(i + 1).padStart(2, "0"), margin + 3, y + bh / 2 + 2);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("NotoSans", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...C.dark);
     doc.text(lines, margin + 12, y + 4.5);
@@ -501,7 +537,7 @@ export async function generateCVPDF(
   const totalPages = (doc.internal as any).getNumberOfPages();
   for (let p = 1; p <= totalPages; p++) {
     doc.setPage(p);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("NotoSans", "normal");
     doc.setFontSize(6.5);
     doc.setTextColor(...C.muted);
     doc.text(
